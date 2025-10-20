@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
 import com.example.milsaboresmovilesv2.ui.theme.MilSaboresMovilesV2Theme
 
 class MainActivity : ComponentActivity() {
@@ -19,18 +20,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MilSaboresMovilesV2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                ScreenPrincipal()
             }
         }
     }
 }
 
-@Composable
+/*@Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
@@ -44,4 +40,4 @@ fun GreetingPreview() {
     MilSaboresMovilesV2Theme {
         Greeting("Android")
     }
-}
+}*/
