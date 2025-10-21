@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.milsaboresmovilesv2.navigation.AppNavigation
 import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
 import com.example.milsaboresmovilesv2.ui.theme.MilSaboresMovilesV2Theme
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MilSaboresMovilesV2Theme {
-                ScreenPrincipal()
+                AppNavigation()
             }
         }
     }
