@@ -61,10 +61,14 @@ fun ScreenPrincipal() {
             "Home" -> HomeContent(
                 onVerProductosClick = { selectedItem = "Productos" }
             )
-            "Productos" -> ProductosScreen(
-
+            "Productos" -> ProductosScreen()
+            "Menu" -> MenuScreen(
+                onLoginClick = { selectedItem = "Login" }
             )
-            "Menu" -> Text("Opciones del menú", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            "Login" -> LoginScreen(
+                onBackClick = { selectedItem = "Menu" },
+                onLogInSuccess = { selectedItem = "Home" })
+
         }
     }
 }

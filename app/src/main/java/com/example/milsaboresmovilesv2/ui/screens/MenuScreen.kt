@@ -60,7 +60,9 @@ import org.w3c.dom.Text
 @Composable
 fun MenuScreen(
     onLoginClick: () -> Unit = {},
+    onNavigateToLogIn: () -> Unit = {},
     onVerProductos: () -> Unit = {}
+
 ){
     var selectedItem by remember { mutableStateOf("Menu") }
 
@@ -69,7 +71,7 @@ fun MenuScreen(
             .fillMaxSize()
             .background(Color(0xFFFFFBF2))
     ) {
-        MenuContent(onLoginClick = onLoginClick)
+        MenuContent(onLoginClick = onNavigateToLogIn)
     }
 }
 
@@ -156,7 +158,7 @@ fun MenuContent(onLoginClick: () -> Unit = {}) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
-                    onClick = onLoginClick,
+                    onClick = { onLoginClick() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF8B4513),
                         contentColor = Color.White

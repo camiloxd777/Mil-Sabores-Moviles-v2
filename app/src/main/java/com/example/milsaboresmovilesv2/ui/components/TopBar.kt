@@ -69,7 +69,7 @@ fun TopBar() {
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFFFF9F0), // Mismo color que tenías
+            containerColor = Color(0xFFFFFFFF), // Mismo color que tenías
             titleContentColor = Color(0xFF5C3A21)
         )
     )
