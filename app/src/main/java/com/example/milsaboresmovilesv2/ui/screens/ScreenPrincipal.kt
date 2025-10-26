@@ -61,7 +61,7 @@ fun ScreenPrincipal() {
             "Home" -> HomeContent(
                 onVerProductosClick = { selectedItem = "Productos" }
             )
-            "Productos" -> ProductosScreen( // Ahora usa ProductoScreen
+            "Productos" -> ProductosScreen(
 
             )
             "Menu" -> Text("Opciones del menú", fontSize = 20.sp, fontWeight = FontWeight.Bold)
