@@ -45,11 +45,18 @@ import com.example.milsaboresmovilesv2.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 
 
 @Composable
-fun ScreenPrincipal() {
+fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController) {
     var selectedItem by remember { mutableStateOf("Home") }
+    val navController = rememberNavController()
+    val carritoVM: CarritoViewModel = viewModel()
+
 
     Box(
         modifier = Modifier
@@ -57,11 +64,12 @@ fun ScreenPrincipal() {
             .background(Color(0xFFFFF5E0)),
         contentAlignment = Alignment.Center
     ) {
+
         when (selectedItem) {
             "Home" -> HomeContent(
                 onVerProductosClick = { selectedItem = "Productos" }
             )
-            "Productos" -> ProductosScreen()
+            "Productos" -> ProductosScreen(navController, carritoVM)
             "Menu" -> MenuScreen(
                 onLoginClick = { selectedItem = "Login" }
             )
@@ -525,7 +533,9 @@ fun getDescuentosEspeciales(): List<DescuentoEspecial> {
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
 fun ScreenPrincipalPreview() {
-    ScreenPrincipal()
+    val fakeNavController = rememberNavController()
+    val fakeCarritoVM = CarritoViewModel()
+    ScreenPrincipal(carritoVM = fakeCarritoVM, navController = fakeNavController)
 }
 
 
