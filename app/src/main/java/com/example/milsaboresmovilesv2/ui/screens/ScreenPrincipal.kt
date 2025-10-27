@@ -70,9 +70,7 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController) {
                 onVerProductosClick = { selectedItem = "Productos" }
             )
             "Productos" -> ProductosScreen(navController, carritoVM)
-            "Menu" -> MenuScreen(
-                onLoginClick = { selectedItem = "Login" }
-            )
+            "Menu" -> MenuScreen(navController)
             "Login" -> LoginScreen(
                 onBackClick = { selectedItem = "Menu" },
                 onLogInSuccess = { selectedItem = "Home" })

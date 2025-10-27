@@ -50,7 +50,7 @@ fun TopBar(navController: NavController, badgeCount: Int) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Pasteleria Mil Sabores",
+                    text = "Pastelería Mil Sabores",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color(0xFF5C3A21)
@@ -58,7 +58,7 @@ fun TopBar(navController: NavController, badgeCount: Int) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFFFF5E1))
+                        .background(Color(0xFFF8F5FC))
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     contentAlignment = Alignment.CenterEnd
                 ){
@@ -69,12 +69,18 @@ fun TopBar(navController: NavController, badgeCount: Int) {
                             }
                         }
                     ) {
-                        IconButton(onClick = {navController.navigate("carrito")}) {
+                        IconButton(
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = Color.White
+                            ),
+                            onClick = {navController.navigate("carrito")}
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.ShoppingCart,
                                 contentDescription = "Carrito de compras",
                                 tint = Color(0xFF5C3A21)
                             )
+
                         }
                     }
                 }

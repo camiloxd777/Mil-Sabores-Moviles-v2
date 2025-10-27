@@ -54,16 +54,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import org.w3c.dom.Text
 
 
 @Composable
-fun MenuScreen(
-    onLoginClick: () -> Unit = {},
-    onNavigateToLogIn: () -> Unit = {},
-    onVerProductos: () -> Unit = {}
-
-){
+fun MenuScreen(navController: NavController){
     var selectedItem by remember { mutableStateOf("Menu") }
 
     Box(
@@ -71,7 +67,7 @@ fun MenuScreen(
             .fillMaxSize()
             .background(Color(0xFFFFFBF2))
     ) {
-        MenuContent(onLoginClick = onNavigateToLogIn)
+        MenuContent(onLoginClick = {navController.navigate("login")}, onVerProductos = {navController.navigate("productos")})
     }
 }
 
@@ -94,7 +90,7 @@ fun MenuTopBar(onLoginClick: () -> Unit = {}) {
         },
         actions = {
             Button(
-                onClick = onLoginClick,
+                onClick = {onLoginClick()},
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD35400),
                     contentColor = Color.White
@@ -117,7 +113,7 @@ fun MenuTopBar(onLoginClick: () -> Unit = {}) {
 }
 
 @Composable
-fun MenuContent(onLoginClick: () -> Unit = {}) {
+fun MenuContent(onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -349,8 +345,8 @@ fun getOpcionesMenu(): List<OpcionMenu> {
     )
 }
 
-@Preview(showBackground = true)
+/*Preview(showBackground = true)
 @Composable
 fun MenuScreenPreview() {
     MenuScreen()
-}
+}*/

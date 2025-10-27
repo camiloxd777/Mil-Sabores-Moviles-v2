@@ -24,6 +24,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
 import com.example.milsaboresmovilesv2.ui.screens.CarritoScreen
+import com.example.milsaboresmovilesv2.ui.screens.LoginScreen
+import com.example.milsaboresmovilesv2.ui.screens.RegisterScreen
 import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 
@@ -43,7 +45,7 @@ fun AppNavigation() {
         ) {
             composable("home") { ScreenPrincipal(carritoVM, navController) }
             composable("productos") { ProductosScreen(navController, carritoVM) } //pestaña productos
-            composable("menu") { MenuScreen() }
+            composable("menu") { MenuScreen(navController) }
             composable (
                 "detalleProducto/{nombre}/{descripcion}/{precio}/{imagen}",
                 arguments = listOf(
@@ -62,6 +64,19 @@ fun AppNavigation() {
 
             }
             composable("carrito") { CarritoScreen(carritoVM) }
+            composable("login") {
+                LoginScreen(
+                    onLogInSuccess = {navController.navigate("home")}, //vuelve al home después de iniciar sesión
+                    onBackClick = {navController.popBackStack()}, //vuelve al menú
+                    onRegisterClick = {navController.navigate("register")} //redirige al register
+                )
+            }
+            composable("register") {
+                RegisterScreen(
+                    onRegisterSuccess = {navController.navigate("home")},
+                    onGoToLogin = {navController.navigate("login")}
+                )
+            }
         }
     }
 }
