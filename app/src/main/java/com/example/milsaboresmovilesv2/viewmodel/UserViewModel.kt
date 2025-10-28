@@ -69,5 +69,9 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
             loadUsers()
         }
     }
+
+    fun logout(){
+        _loginState.value=null
+    }
 }
 

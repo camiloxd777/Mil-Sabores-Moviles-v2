@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
@@ -41,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -55,11 +57,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import org.w3c.dom.Text
 
 
 @Composable
-fun MenuScreen(navController: NavController){
+fun MenuScreen(navController: NavController, userVM: UserViewModel){
     var selectedItem by remember { mutableStateOf("Menu") }
 
     Box(
@@ -67,7 +70,7 @@ fun MenuScreen(navController: NavController){
             .fillMaxSize()
             .background(Color(0xFFFFFBF2))
     ) {
-        MenuContent(onLoginClick = {navController.navigate("login")}, onVerProductos = {navController.navigate("productos")})
+        MenuContent(userVM=userVM,onLoginClick = {navController.navigate("login")}, onVerProductos = {navController.navigate("productos")})
     }
 }
 
@@ -113,7 +116,10 @@ fun MenuTopBar(onLoginClick: () -> Unit = {}) {
 }
 
 @Composable
-fun MenuContent(onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
+fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
+
+    val loggedUser = userVM.loginState.collectAsState().value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,101 +127,135 @@ fun MenuContent(onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Tarjeta Superior
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFFC0CB)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+
+        if (loggedUser != null) {
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFE7FF)),
+                elevation = CardDefaults.cardElevation(4.dp),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Text(
-                    text = "¡Bienvenido!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2C3E50)
-                )
+                Column(
+                    modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Perfil",
+                        tint = Color(0xFF8B4513),
+                        modifier = Modifier.size(60.dp)
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                Text(
-                    text = "Inicia sesión para acceder a todas las funciones",
-                    fontSize = 16.sp,
-                    color = Color(0xFF666666),
-                    textAlign = TextAlign.Center
-                )
+                    Text(
+                        text = loggedUser.username,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2C3E50),
+                        textAlign = TextAlign.Center
+                    )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        text = loggedUser.email,
+                        fontSize = 16.sp,
+                        color = Color(0xFF555555),
+                        textAlign = TextAlign.Center
+                    )
 
-                Button(
-                    onClick = { onLoginClick() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF8B4513),
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier
-                        .height(48.dp)
-                        .width(200.dp)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = { userVM.logout() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFD35400),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .height(48.dp)
+                            .width(200.dp)
+                    ) {
+                        Text("Cerrar Sesión")
+                    }
+                }
+            }
+
+        } else {
+            //si no hay sesión muestra la tarjeta del login
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC0CB)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Iniciar Sesión",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
+                        text = "¡Bienvenido!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2C3E50)
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Inicia sesión para acceder a todas las funciones",
+                        fontSize = 16.sp,
+                        color = Color(0xFF666666),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = { onLoginClick() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF8B4513),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .height(48.dp)
+                            .width(200.dp)
+                    ) {
+                        Text(
+                            text = "Iniciar Sesión",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
         }
 
-        // Opciones del Menú
-        Column(
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            text = "Opciones",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF8B4513),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Opciones",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF8B4513),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(getOpcionesMenu()) { opcion ->
-                    OpcionMenuItem(opcion = opcion)
-                }
+            items(getOpcionesMenu()) { opcion ->
+                OpcionMenuItem(opcion = opcion)
             }
         }
 
-        // Información de Contacto
         Card(
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF8F4E8)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F4E8)),
+            elevation = CardDefaults.cardElevation(2.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Información de Contacto",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8B4513)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+            Column(modifier = Modifier.padding(16.dp)) {
                 ContactoItem(icon = Icons.Default.Phone, text = "+56 9 12345678")
                 ContactoItem(icon = Icons.Default.Email, text = "info@milsabores.cl")
                 ContactoItem(icon = Icons.Default.LocationOn, text = "Av. Principal 123, Santiago")

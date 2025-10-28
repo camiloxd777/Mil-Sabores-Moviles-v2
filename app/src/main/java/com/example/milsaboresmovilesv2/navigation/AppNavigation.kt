@@ -66,7 +66,7 @@ fun AppNavigation() {
         ) {
             composable("home") { ScreenPrincipal(carritoVM=carritoVM, navController=navController, userVM=userVM) }
             composable("productos") { ProductosScreen(navController, carritoVM) } //pestaña productos
-            composable("menu") { MenuScreen(navController) }
+            composable("menu") { MenuScreen(navController, userVM) }
             composable (
                 "detalleProducto/{nombre}/{descripcion}/{precio}/{imagen}",
                 arguments = listOf(
