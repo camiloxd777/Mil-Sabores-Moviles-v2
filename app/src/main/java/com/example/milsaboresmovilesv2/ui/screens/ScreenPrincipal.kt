@@ -82,6 +82,12 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController) {
 // Home
 @Composable
 fun HomeContent(onVerProductosClick: () -> Unit = {}) {
+    var contentLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
