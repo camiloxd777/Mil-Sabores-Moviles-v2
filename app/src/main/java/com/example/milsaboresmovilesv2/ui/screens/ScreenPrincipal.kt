@@ -48,11 +48,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.room.InvalidationTracker
+import com.example.milsaboresmovilesv2.data.local.AppDatabase
+import com.example.milsaboresmovilesv2.data.local.User
+import com.example.milsaboresmovilesv2.data.local.UserDao
+import com.example.milsaboresmovilesv2.data.repository.UserRepository
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
+import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
+import kotlinx.coroutines.flow.flowOf
+import kotlin.collections.emptyList
 
 
 @Composable
-fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController) {
+fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, userVM: UserViewModel) {
     var selectedItem by remember { mutableStateOf("Home") }
     val navController = rememberNavController()
     val carritoVM: CarritoViewModel = viewModel()
@@ -72,6 +80,7 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController) {
             "Productos" -> ProductosScreen(navController, carritoVM)
             "Menu" -> MenuScreen(navController)
             "Login" -> LoginScreen(
+                userVM=userVM,
                 onBackClick = { selectedItem = "Menu" },
                 onLogInSuccess = { selectedItem = "Home" })
 
@@ -534,12 +543,43 @@ fun getDescuentosEspeciales(): List<DescuentoEspecial> {
 }
 
 
-@Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
+/*@Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
 fun ScreenPrincipalPreview() {
+
     val fakeNavController = rememberNavController()
+
+    // Fake DAO (no hace nada pero permite compilar)
+    val fakeDao = object : UserDao {
+        override suspend fun insertUser(user: User) {}
+        override suspend fun getUserByEmailAndPassword(email: String, password: String): User? = null
+        override suspend fun emailExists(email: String): Boolean = false
+        override suspend fun usernameExists(username: String): Boolean = false
+        override fun getAllUsers(): Flow<List<User>> = flowOf(emptyList())
+    }
+
+    // Fake Database
+    val fakeDatabase = object : AppDatabase() {
+        override fun userDao(): UserDao = fakeDao
+        override fun createInvalidationTracker(): InvalidationTracker {
+            TODO("Not yet implemented")
+        }
+
+        override fun clearAllTables() {
+            TODO("Not yet implemented")
+        }
+    }
+
+    val fakeRepository = UserRepository(fakeDao)
+    val fakeUserVM = UserViewModel(fakeRepository)
+
     val fakeCarritoVM = CarritoViewModel()
-    ScreenPrincipal(carritoVM = fakeCarritoVM, navController = fakeNavController)
+
+    ScreenPrincipal(
+        carritoVM = fakeCarritoVM,
+        navController = fakeNavController,
+        userVM = fakeUserVM
+    )
 }
 
 
@@ -552,7 +592,7 @@ fun ScreenPrincipalPreview() {
 
 
 
-/*@Composable
+@Composable
 fun HomeScreen(){
     val widthSizeClass= obtenerWindowWidthSizeClass()
     when (widthSizeClass){

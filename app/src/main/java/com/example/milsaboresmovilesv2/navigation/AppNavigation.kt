@@ -19,20 +19,41 @@ import com.example.milsaboresmovilesv2.ui.screens.MenuScreen
 import androidx.compose.material3.Scaffold
 import com.example.milsaboresmovilesv2.ui.components.TopBar
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.room.Room
+import com.example.milsaboresmovilesv2.data.local.AppDatabase
+import com.example.milsaboresmovilesv2.data.repository.UserRepository
 import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
+import com.example.milsaboresmovilesv2.ui.screens.BdUsersScreen
 import com.example.milsaboresmovilesv2.ui.screens.CarritoScreen
 import com.example.milsaboresmovilesv2.ui.screens.LoginScreen
 import com.example.milsaboresmovilesv2.ui.screens.RegisterScreen
 import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
+import com.example.milsaboresmovilesv2.ui.screens.UsersScreen
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
+import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
+import com.example.milsaboresmovilesv2.viewmodel.UserViewModelFactory
+import com.example.milsaboresmovilesv2.viewmodel.UsuarioViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val carritoVM: CarritoViewModel = viewModel()
+
+    //creacion base de datos
+    val context = LocalContext.current
+    val db = Room.databaseBuilder(
+        context,
+        AppDatabase::class.java,
+        "mil_sabores_db"
+    ).build()
+
+    val repository = UserRepository(db.userDao())
+    val userVM: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
+
 
     Scaffold(
         topBar = { TopBar(navController, badgeCount = carritoVM.totalItems()) },
@@ -40,10 +61,10 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = "login",
             modifier = androidx.compose.ui.Modifier.padding(innerPadding)
         ) {
-            composable("home") { ScreenPrincipal(carritoVM, navController) }
+            composable("home") { ScreenPrincipal(carritoVM=carritoVM, navController=navController, userVM=userVM) }
             composable("productos") { ProductosScreen(navController, carritoVM) } //pestaña productos
             composable("menu") { MenuScreen(navController) }
             composable (
@@ -66,6 +87,7 @@ fun AppNavigation() {
             composable("carrito") { CarritoScreen(carritoVM) }
             composable("login") {
                 LoginScreen(
+                    userVM = userVM,
                     onLogInSuccess = {navController.navigate("home")}, //vuelve al home después de iniciar sesión
                     onBackClick = {navController.popBackStack()}, //vuelve al menú
                     onRegisterClick = {navController.navigate("register")} //redirige al register
@@ -73,9 +95,13 @@ fun AppNavigation() {
             }
             composable("register") {
                 RegisterScreen(
-                    onRegisterSuccess = {navController.navigate("home")},
-                    onGoToLogin = {navController.navigate("login")}
+                    userVM = userVM,
+                    onRegisterSuccess = {navController.navigate("login")},
+                    onGoToLogin = {navController.popBackStack()}
                 )
+            }
+            composable(route="bdusers") {
+                UsersScreen(userVM)
             }
         }
     }

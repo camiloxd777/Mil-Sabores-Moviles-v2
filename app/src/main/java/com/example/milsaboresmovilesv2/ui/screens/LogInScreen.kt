@@ -40,6 +40,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,9 +59,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
+import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 
 @Composable
 fun LoginScreen(
+    userVM: UserViewModel,
     onLogInSuccess: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
@@ -70,6 +73,10 @@ fun LoginScreen(
     var rememberMe by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+
+    //base de datos
+    val loginUser by userVM.loginState.collectAsState()
+    val errorMsg by userVM.error.collectAsState()
 
 
     Column(
@@ -97,6 +104,16 @@ fun LoginScreen(
                 color = Color(0xFF666666),
                 textAlign = TextAlign.Center
             )
+
+            errorMsg?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
 
         Card(
@@ -253,7 +270,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         isLoading = true
-                        //Simular proceso login
+                        userVM.login(email,password)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -276,6 +293,11 @@ fun LoginScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
+                    }
+                }
+                LaunchedEffect(loginUser) {
+                    loginUser?.let {
+                        onLogInSuccess()
                     }
                 }
             }
@@ -307,8 +329,8 @@ fun LoginScreen(
 }
 
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     LoginScreen()
-}
+}*/

@@ -3,6 +3,7 @@ package com.example.milsaboresmovilesv2.ui.components
 import android.text.Layout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,19 +38,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.milsaboresmovilesv2.R
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(navController: NavController, badgeCount: Int) {
+
+    var tapCount by remember { mutableStateOf(0) }
+
+
     TopAppBar(
         title = {
-            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "logo",
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
+                        .clickable {
+                            tapCount++
+                            if (tapCount >= 5) {
+                                navController.navigate("bdusers")
+                                tapCount = 0
+                            }
+                        }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
