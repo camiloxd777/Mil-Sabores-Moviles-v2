@@ -109,7 +109,7 @@ fun HomeContent(onVerProductosClick: () -> Unit = {}) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.2f))
+                        .background(Color.Black.copy(alpha = 0.4f))
                 )
 
                 Column(
