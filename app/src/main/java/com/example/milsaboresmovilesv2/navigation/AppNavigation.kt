@@ -27,9 +27,13 @@ import androidx.room.Room
 import com.example.milsaboresmovilesv2.data.local.AppDatabase
 import com.example.milsaboresmovilesv2.data.repository.UserRepository
 import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
+import com.example.milsaboresmovilesv2.ui.screens.AyudaScreen
 import com.example.milsaboresmovilesv2.ui.screens.BdUsersScreen
 import com.example.milsaboresmovilesv2.ui.screens.CarritoScreen
+import com.example.milsaboresmovilesv2.ui.screens.ConfiguracionScreen
+import com.example.milsaboresmovilesv2.ui.screens.DireccionesScreen
 import com.example.milsaboresmovilesv2.ui.screens.LoginScreen
+import com.example.milsaboresmovilesv2.ui.screens.MetodoPagoScreen
 import com.example.milsaboresmovilesv2.ui.screens.MisFavoritosScreen
 import com.example.milsaboresmovilesv2.ui.screens.MisPedidosScreen
 import com.example.milsaboresmovilesv2.ui.screens.RegisterScreen
@@ -110,11 +114,26 @@ fun AppNavigation() {
                     navController = navController,
                     userVM = userVM)
             }
+            composable("direcciones") {
+                DireccionesScreen(navController, userVM)
+            }
             composable("misFavoritos") {
                 MisFavoritosScreen(
-                    navController = navController,
-                    userVM = userVM)
+                    navController, userVM)
             }
+            composable("metodoPago") {
+                MetodoPagoScreen(
+                    navController, userVM)
+            }
+            composable("configuracion") {
+                ConfiguracionScreen(
+                    navController, userVM)
+            }
+            composable("ayuda") {
+                AyudaScreen(
+                    navController = navController)
+            }
+
         }
     }
 }

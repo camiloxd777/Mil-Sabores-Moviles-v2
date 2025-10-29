@@ -72,8 +72,12 @@ fun MenuScreen(navController: NavController, userVM: UserViewModel){
             onLoginClick = { navController.navigate("login") },
             onOpcionMenuClick = { destino ->
                 when(destino) {
-                    "misPedidos" -> navController.navigate("misPedidos")
-                    "misFavoritos" -> navController.navigate("misFavoritos")
+                    "Mis Pedidos" -> navController.navigate("misPedidos")
+                    "Mis Favoritos" -> navController.navigate("misFavoritos")
+                    "Direcciones" -> navController.navigate("direcciones")
+                    "Método de Pago" -> navController.navigate("metodoPago")
+                    "Configuración" -> navController.navigate("configuracion")
+                    "Ayuda y Soporte" -> navController.navigate("ayuda")
                 }
             }
         )
@@ -101,7 +105,7 @@ fun MenuContent(
         if (loggedUser != null) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFE7FF)),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC0CB)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -123,7 +127,7 @@ fun MenuContent(
                         text = loggedUser.username,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2C3E50),
+                        color = Color(0xFF2C2C2C),
                         textAlign = TextAlign.Center
                     )
 
@@ -218,10 +222,7 @@ fun MenuContent(
                 OpcionMenuItem(
                     opcion = opcion,
                     onClick = {
-                        when(opcion.titulo){
-                            "Mis Pedidos" -> onOpcionMenuClick("misPedidos")
-                            "Mis Favoritos" -> onOpcionMenuClick("misFavoritos")
-                        }
+                        onOpcionMenuClick(opcion.titulo)
                     }
                 )
             }
