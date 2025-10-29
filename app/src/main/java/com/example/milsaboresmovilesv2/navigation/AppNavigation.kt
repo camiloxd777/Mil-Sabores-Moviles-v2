@@ -30,6 +30,8 @@ import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
 import com.example.milsaboresmovilesv2.ui.screens.BdUsersScreen
 import com.example.milsaboresmovilesv2.ui.screens.CarritoScreen
 import com.example.milsaboresmovilesv2.ui.screens.LoginScreen
+import com.example.milsaboresmovilesv2.ui.screens.MisFavoritosScreen
+import com.example.milsaboresmovilesv2.ui.screens.MisPedidosScreen
 import com.example.milsaboresmovilesv2.ui.screens.RegisterScreen
 import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
 import com.example.milsaboresmovilesv2.ui.screens.UsersScreen
@@ -102,6 +104,16 @@ fun AppNavigation() {
             }
             composable(route="bdusers") {
                 UsersScreen(userVM)
+            }
+            composable("misPedidos") {
+                MisPedidosScreen(
+                    navController = navController,
+                    userVM = userVM)
+            }
+            composable("misFavoritos") {
+                MisFavoritosScreen(
+                    navController = navController,
+                    userVM = userVM)
             }
         }
     }

@@ -1,8 +1,6 @@
 package com.example.milsaboresmovilesv2.ui.screens
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,12 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,25 +29,18 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +49,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -69,7 +56,6 @@ import com.example.milsaboresmovilesv2.utils.openEmail
 import com.example.milsaboresmovilesv2.utils.openMaps
 import com.example.milsaboresmovilesv2.utils.openPhoneDialer
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
-import org.w3c.dom.Text
 
 
 @Composable
@@ -81,54 +67,25 @@ fun MenuScreen(navController: NavController, userVM: UserViewModel){
             .fillMaxSize()
             .background(Color(0xFFFFFBF2))
     ) {
-        MenuContent(userVM=userVM,onLoginClick = {navController.navigate("login")}, onVerProductos = {navController.navigate("productos")})
+        MenuContent(
+            userVM = userVM,
+            onLoginClick = { navController.navigate("login") },
+            onOpcionMenuClick = { destino ->
+                when(destino) {
+                    "misPedidos" -> navController.navigate("misPedidos")
+                    "misFavoritos" -> navController.navigate("misFavoritos")
+                }
+            }
+        )
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuTopBar(onLoginClick: () -> Unit = {}) {
-    TopAppBar(
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Menú",
-                    color = Color(0xFF8B4513),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        actions = {
-            Button(
-                onClick = {onLoginClick()},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD35400),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .height(36.dp)
-                    .padding(horizontal = 8.dp)
-            ) {
-                Text(
-                    text = "Iniciar Sesión",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFFFFBF2)
-        )
-    )
-}
-
-@Composable
-fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
-
+fun MenuContent(
+    userVM: UserViewModel,
+    onLoginClick: () -> Unit = {},
+    onOpcionMenuClick: (String) -> Unit = {}
+) {
     val loggedUser = userVM.loginState.collectAsState().value
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -141,13 +98,11 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-
         if (loggedUser != null) {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFEFE7FF)),
-                elevation = CardDefaults.cardElevation(4.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
@@ -195,9 +150,8 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
                     }
                 }
             }
-
         } else {
-            //si no hay sesión muestra la tarjeta del login
+            // Si no hay sesión muestra la tarjeta del login
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC0CB)),
@@ -227,7 +181,7 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
-                        onClick = { onLoginClick() },
+                        onClick = onLoginClick,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF8B4513),
                             contentColor = Color.White
@@ -246,6 +200,8 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
             }
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
         Text(
             text = "Opciones",
             fontSize = 22.sp,
@@ -259,7 +215,15 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             getOpcionesMenu().forEach { opcion ->
-                OpcionMenuItem(opcion = opcion)
+                OpcionMenuItem(
+                    opcion = opcion,
+                    onClick = {
+                        when(opcion.titulo){
+                            "Mis Pedidos" -> onOpcionMenuClick("misPedidos")
+                            "Mis Favoritos" -> onOpcionMenuClick("misFavoritos")
+                        }
+                    }
+                )
             }
         }
 
@@ -267,12 +231,13 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F4E8))
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F4E8)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+            ) {
                 ContactoItem(
                     icon = Icons.Default.Phone,
                     text = "+56 9 12345678",
@@ -306,12 +271,12 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
     }
 }
 
-
 @Composable
-fun OpcionMenuItem(opcion: OpcionMenu) {
+fun OpcionMenuItem(opcion: OpcionMenu, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -403,41 +368,34 @@ data class OpcionMenu(
 fun getOpcionesMenu(): List<OpcionMenu> {
     return listOf(
         OpcionMenu(
-            "Mis Pedidos",
-            "Revisa el historial de tus pedidos",
-            Icons.Default.ShoppingBag
+            titulo = "Mis Pedidos",
+            descripcion = "Revisa el historial de tus pedidos",
+            icono = Icons.Default.ShoppingBag
         ),
         OpcionMenu(
-            "Mis Favoritos",
-            "Tus productos favoritos guardados",
-            Icons.Default.Favorite
+            titulo = "Mis Favoritos",
+            descripcion = "Tus productos favoritos guardados",
+            icono = Icons.Default.Favorite
         ),
         OpcionMenu(
-            "Direcciones",
-            "Gestiona tus direcciones de entrega",
-            Icons.Default.Home
+            titulo = "Direcciones",
+            descripcion = "Gestiona tus direcciones de entrega",
+            icono = Icons.Default.Home
         ),
         OpcionMenu(
-            "Método de Pago",
-            "Tarjetas y formas de pago",
-            Icons.Default.CreditCard
+            titulo = "Método de Pago",
+            descripcion = "Tarjetas y formas de pago",
+            icono = Icons.Default.CreditCard
         ),
         OpcionMenu(
-            "Cofiguración",
-            "Ajustes de la aplicación",
-            Icons.Default.Settings
+            titulo = "Configuración",
+            descripcion = "Ajustes de la aplicación",
+            icono = Icons.Default.Settings
         ),
         OpcionMenu(
-            "Ayuda y Soporte",
-            "Centro de ayuda y contacto",
-            Icons.Default.Help
+            titulo = "Ayuda y Soporte",
+            descripcion = "Centro de ayuda y contacto",
+            icono = Icons.Default.Help
         )
-
     )
 }
-
-/*Preview(showBackground = true)
-@Composable
-fun MenuScreenPreview() {
-    MenuScreen()
-}*/
