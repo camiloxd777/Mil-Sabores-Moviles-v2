@@ -61,7 +61,7 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "login",
+            startDestination = "home",
             modifier = androidx.compose.ui.Modifier.padding(innerPadding)
         ) {
             composable("home") { ScreenPrincipal(carritoVM=carritoVM, navController=navController, userVM=userVM) }

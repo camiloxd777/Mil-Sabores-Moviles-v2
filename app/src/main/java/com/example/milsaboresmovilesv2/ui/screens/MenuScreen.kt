@@ -1,6 +1,9 @@
 package com.example.milsaboresmovilesv2.ui.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,12 +12,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Email
@@ -36,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,12 +58,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.milsaboresmovilesv2.utils.openEmail
+import com.example.milsaboresmovilesv2.utils.openMaps
+import com.example.milsaboresmovilesv2.utils.openPhoneDialer
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import org.w3c.dom.Text
 
@@ -119,13 +130,16 @@ fun MenuTopBar(onLoginClick: () -> Unit = {}) {
 fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProductos: ()-> Unit={}) {
 
     val loggedUser = userVM.loginState.collectAsState().value
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.Top
     ) {
 
         if (loggedUser != null) {
@@ -240,30 +254,58 @@ fun MenuContent(userVM: UserViewModel,onLoginClick: () -> Unit = {}, onVerProduc
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        LazyColumn(
+        Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(getOpcionesMenu()) { opcion ->
+            getOpcionesMenu().forEach { opcion ->
                 OpcionMenuItem(opcion = opcion)
             }
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
+
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F4E8)),
-            elevation = CardDefaults.cardElevation(2.dp),
-            shape = RoundedCornerShape(12.dp)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F4E8))
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                ContactoItem(icon = Icons.Default.Phone, text = "+56 9 12345678")
-                ContactoItem(icon = Icons.Default.Email, text = "info@milsabores.cl")
-                ContactoItem(icon = Icons.Default.LocationOn, text = "Av. Principal 123, Santiago")
-                ContactoItem(icon = Icons.Default.Schedule, text = "Lun-Vie: 9:00 - 20:00")
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                ContactoItem(
+                    icon = Icons.Default.Phone,
+                    text = "+56 9 12345678",
+                    onClick = {
+                        openPhoneDialer(context, "+56912345678")
+                    }
+                )
+
+                ContactoItem(
+                    icon = Icons.Default.Email,
+                    text = "info@milsabores.cl",
+                    onClick = {
+                        openEmail(context, "info@milsabores.cl")
+                    }
+                )
+
+                ContactoItem(
+                    icon = Icons.Default.LocationOn,
+                    text = "Av. Principal 123, Santiago",
+                    onClick = {
+                        openMaps(context, "Av. Principal 123, Santiago")
+                    }
+                )
+
+                ContactoItem(
+                    icon = Icons.Default.Schedule,
+                    text = "Lun-Vie: 9:00 - 20:00"
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun OpcionMenuItem(opcion: OpcionMenu) {
@@ -319,26 +361,35 @@ fun OpcionMenuItem(opcion: OpcionMenu) {
 }
 
 @Composable
-fun ContactoItem(icon: ImageVector, text: String){
-    Row(
-        modifier = Modifier
+fun ContactoItem(
+    icon: ImageVector,
+    text: String,
+    onClick: (() -> Unit)? = null
+) {
+    val modifier = if (onClick != null) {
+        Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .clickable { onClick() }
+    } else {
+        Modifier.fillMaxWidth()
+    }
+
+    Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF666666),
-            modifier = Modifier.size(20.dp)
+            tint = Color(0xFF7D5260),
+            modifier = Modifier.size(24.dp)
         )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
+        Spacer(Modifier.width(12.dp))
         Text(
             text = text,
-            fontSize = 14.sp,
-            color = Color(0xFF666666)
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF7D5260),
+            modifier = Modifier.weight(1f)
         )
     }
 }
