@@ -7,12 +7,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -391,60 +393,53 @@ fun CategoriaItem(categoria: Categoria) {
 }
 
 @Composable
-fun ProductoDestacadoItem(producto: ProductoDestacado){
+fun ProductoDestacadoItem(producto: Producto){
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = producto.nombre,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF333333)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Image(
+                painter = painterResource(id = producto.imagen),
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(end = 12.dp)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = producto.descripcion,
-                fontSize = 14.sp,
-                color = Color(0xFF666666),
-                lineHeight = 18.sp
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = producto.precio,
-                    fontSize = 16.sp,
+                    producto.nombre,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD35400)
+                    fontSize = 16.sp,
+                    color = Color(0xFF333333)
                 )
-
-                Button(
-                    onClick = {/*agregar al carrito*/},
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFC0CB),
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text(
-                        text = "+ Agregar",
-                        fontSize = 14.sp
-                    )
-                }
+                Text(
+                    producto.descripcion,
+                    fontSize = 13.sp,
+                    color = Color.DarkGray,
+                    lineHeight = 18.sp
+                )
+                Text(
+                    "$${producto.precio}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE66B00),
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+            Button(
+                onClick = { /* Acción de agregar al carrito */ },
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC6CF)),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
+            ) {
+                Text("+ Agregar", color = Color.White)
             }
         }
     }
@@ -472,7 +467,7 @@ fun DescuentoEspecialItem(especial: DescuentoEspecial) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                   text = especial.titulo,
+                    text = especial.titulo,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2C3E50)
@@ -492,18 +487,12 @@ data class Categoria(
     val cantidadProductos: Int
 )
 
-data class ProductoDestacado(
-    val nombre: String,
-    val descripcion: String,
-    val precio: String
-)
-
 data class DescuentoEspecial(
     val titulo: String,
     val descripcion: String,
     val codigo: String = ""
-
 )
+
 fun getCategorias(): List<Categoria> {
     return listOf(
         Categoria("Tortas Cuadradas", 8),
@@ -514,22 +503,25 @@ fun getCategorias(): List<Categoria> {
 }
 
 // Funciones para obtener los datos
-fun getProductosDestacados(): List<ProductoDestacado> {
+fun getProductosDestacados(): List<Producto> {
     return listOf(
-        ProductoDestacado(
+        Producto(
             "Torta Cuadrada de Chocolate",
             "Deliciosa torta con capas de ganache y avellanas",
-            "$45.000"
+            "45.000",
+            R.drawable.torta_chocolate
         ),
-        ProductoDestacado(
+        Producto(
             "Torta Circular de Vainilla",
             "Bizcocho clásico con crema pastelera y glaseado",
-            "$40.000"
+            "40.000",
+            R.drawable.torta_vainilla
         ),
-        ProductoDestacado(
+        Producto(
             "Mousse de Chocolate",
             "Postre individual cremoso con chocolate de alta calidad",
-            "$5.000"
+            "5.000",
+            R.drawable.mousse
         )
     )
 }
@@ -542,68 +534,3 @@ fun getDescuentosEspeciales(): List<DescuentoEspecial> {
     )
 }
 
-
-/*@Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
-@Composable
-fun ScreenPrincipalPreview() {
-
-    val fakeNavController = rememberNavController()
-
-    // Fake DAO (no hace nada pero permite compilar)
-    val fakeDao = object : UserDao {
-        override suspend fun insertUser(user: User) {}
-        override suspend fun getUserByEmailAndPassword(email: String, password: String): User? = null
-        override suspend fun emailExists(email: String): Boolean = false
-        override suspend fun usernameExists(username: String): Boolean = false
-        override fun getAllUsers(): Flow<List<User>> = flowOf(emptyList())
-    }
-
-    // Fake Database
-    val fakeDatabase = object : AppDatabase() {
-        override fun userDao(): UserDao = fakeDao
-        override fun createInvalidationTracker(): InvalidationTracker {
-            TODO("Not yet implemented")
-        }
-
-        override fun clearAllTables() {
-            TODO("Not yet implemented")
-        }
-    }
-
-    val fakeRepository = UserRepository(fakeDao)
-    val fakeUserVM = UserViewModel(fakeRepository)
-
-    val fakeCarritoVM = CarritoViewModel()
-
-    ScreenPrincipal(
-        carritoVM = fakeCarritoVM,
-        navController = fakeNavController,
-        userVM = fakeUserVM
-    )
-}
-
-
-
-
-
-
-
-
-
-
-
-@Composable
-fun HomeScreen(){
-    val widthSizeClass= obtenerWindowWidthSizeClass()
-    when (widthSizeClass){
-        WindowWidthSizeClass.Compact->HomeScreenCompacta()
-        WindowWidthSizeClass.Compact->HomeScreenMedium()
-        WindowWidthSizeClass.Compact->HomeScreenGrande()
-    }
-}
-
-@Preview(name="Compact", widthDp = 360, heightDp = 800)
-@Composable
-fun PreviewCompact(){
-    HomeScreenCompacta()
-}*/
