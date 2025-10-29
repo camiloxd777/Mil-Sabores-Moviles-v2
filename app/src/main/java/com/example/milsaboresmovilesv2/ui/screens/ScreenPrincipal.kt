@@ -188,7 +188,7 @@ fun HomeContent(onVerProductosClick: () -> Unit = {}, carritoVM: CarritoViewMode
                     text = "Categorías",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
+                    color = Color(0xFF8B4513)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 
@@ -41,6 +42,16 @@ fun ConfiguracionScreen(navController: NavController, userVM: UserViewModel) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
+            Text(
+                text = "Configuraciones",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF8B4513),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

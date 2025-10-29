@@ -46,8 +46,18 @@ fun AyudaScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
+            Text(
+                text = "Ayuda y Soporte",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF8B4513),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+
             Card(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(22.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
             ) {
@@ -67,12 +77,13 @@ fun AyudaScreen(navController: NavController) {
 
         item {
             Card(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(22.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
-
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.padding(vertical = 8.dp) // Reducir padding vertical interno
+                ) {
                     ContactoItem(
                         icon = Icons.Default.Phone,
                         text = "Llámanos: +56 9 12345678",
@@ -80,6 +91,7 @@ fun AyudaScreen(navController: NavController) {
                             openPhoneDialer(context, "+56912345678")
                         }
                     )
+                    Spacer(modifier = Modifier.height(4.dp)) // Reducir espacio entre items
                     ContactoItem(
                         icon = Icons.Default.Email,
                         text = "Escríbenos: soporte@milsabores.cl",
@@ -96,16 +108,16 @@ fun AyudaScreen(navController: NavController) {
                 "Preguntas Frecuentes",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 22.dp),
+                color = Color(0xFF8B4513),
             )
         }
 
         items(preguntasFrecuentes) { faq ->
             Card(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                elevation = CardDefaults.cardElevation(2.dp) ,
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
-
+                modifier = Modifier.padding(horizontal = 22.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)

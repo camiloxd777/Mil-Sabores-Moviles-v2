@@ -39,6 +39,15 @@ fun MetodoPagoScreen(navController: NavController, userVM: UserViewModel) {
             .fillMaxSize()
             .background(Color(0xFFFFFBF2))
     ) {
+        Text(
+            text = "Metodos de Pago",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF8B4513),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
         val metodosPago = listOf(
             MetodoPago("Visa •••• 1234", "Tarjeta principal"),
             MetodoPago("Mastercard •••• 5678", "Tarjeta secundaria")

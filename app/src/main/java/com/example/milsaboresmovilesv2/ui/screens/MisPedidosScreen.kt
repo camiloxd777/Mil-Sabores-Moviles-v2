@@ -67,6 +67,16 @@ fun MisPedidosScreen(navController: NavController, userVM: UserViewModel) {
                 }
             }
         } else {
+            Text(
+                text = "Mis Pedidos",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF8B4513),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+
             val pedidos = listOf(
                 Pedido("P-001", "15 Oct 2025", "$45.000", "Entregado"),
                 Pedido("P-002", "20 Oct 2025", "$38.000", "Entregado"),

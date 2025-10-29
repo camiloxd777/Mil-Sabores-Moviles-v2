@@ -68,6 +68,15 @@ fun DireccionesScreen(navController: NavController, userVM: UserViewModel) {
                 )
             }
         } else {
+            Text(
+                text = "Direcciones de Entrega",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF8B4513),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
             LazyColumn(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
