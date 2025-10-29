@@ -3,6 +3,30 @@ package com.example.milsaboresmovilesv2.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import java.io.File
+
+
+fun openCamera(context: Context) {
+    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    // Verificar si hay app de cámara disponible
+    if (intent.resolveActivity(context.packageManager) != null) {
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    } else {
+        Toast.makeText(context, "No se encontró cámara disponible", Toast.LENGTH_SHORT).show()
+    }
+}
+
+
+
 
 fun openEmail(context: Context, email: String) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {

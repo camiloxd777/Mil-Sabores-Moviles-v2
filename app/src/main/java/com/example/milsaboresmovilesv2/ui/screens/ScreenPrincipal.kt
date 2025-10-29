@@ -65,7 +65,6 @@ import kotlin.collections.emptyList
 fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, userVM: UserViewModel) {
     var selectedItem by remember { mutableStateOf("Home") }
     val navController = rememberNavController()
-    val carritoVM: CarritoViewModel = viewModel()
 
 
     Box(
@@ -77,7 +76,7 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, u
 
         when (selectedItem) {
             "Home" -> HomeContent(
-                onVerProductosClick = { selectedItem = "Productos" }
+                onVerProductosClick = { selectedItem = "Productos" },carritoVM=carritoVM
             )
             "Productos" -> ProductosScreen(navController, carritoVM)
             "Menu" -> MenuScreen(navController, userVM)
@@ -92,7 +91,7 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, u
 
 // Home
 @Composable
-fun HomeContent(onVerProductosClick: () -> Unit = {}) {
+fun HomeContent(onVerProductosClick: () -> Unit = {}, carritoVM: CarritoViewModel) {
     var contentLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -230,7 +229,7 @@ fun HomeContent(onVerProductosClick: () -> Unit = {}) {
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                ProductoDestacadoItem(producto = producto)
+                ProductoDestacadoItem(producto = producto, carritoVM = carritoVM)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -393,7 +392,7 @@ fun CategoriaItem(categoria: Categoria) {
 }
 
 @Composable
-fun ProductoDestacadoItem(producto: Producto){
+fun ProductoDestacadoItem(producto: Producto, carritoVM: CarritoViewModel){
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -434,7 +433,8 @@ fun ProductoDestacadoItem(producto: Producto){
                 )
             }
             Button(
-                onClick = { /* Acción de agregar al carrito */ },
+                onClick = { carritoVM.add(nombre=producto.nombre, descripcion = producto.descripcion,
+                    imagen = producto.imagen, precioTexto = producto.precio) },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC6CF)),
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)

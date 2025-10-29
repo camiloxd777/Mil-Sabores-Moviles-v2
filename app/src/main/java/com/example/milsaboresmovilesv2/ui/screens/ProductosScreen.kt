@@ -92,13 +92,6 @@ fun ProductosScreen(navController: NavController, carritoVM: CarritoViewModel) {
                 }
                 items(productos) { producto -> //agrega productos
                     ProductoCard(producto){
-                        carritoVM.add(
-                            nombre = producto.nombre,
-                            descripcion = producto.descripcion,
-                            imagen = producto.imagen,
-                            precioTexto = producto.precio
-                        )
-
                         navController.navigate( //navega al carrito
                             "detalleProducto/${Uri.encode(producto.nombre)}/${Uri.encode(producto.descripcion)}/${Uri.encode(producto.precio)}/${producto.imagen}"
                         )
@@ -169,7 +162,7 @@ fun ProductoCard(producto: Producto, onAgregarClick:()-> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC6CF)),
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
             ) {
-                Text("+ Agregar", color = Color.White)
+                Text("Ver", color = Color.White)
             }
 
         }

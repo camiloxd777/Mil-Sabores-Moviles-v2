@@ -68,6 +68,13 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.2")
     implementation("androidx.room:room-ktx:2.8.2")
     implementation(libs.androidx.material3)
+    //camara
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.extensions)
     ksp("androidx.room:room-compiler:2.8.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

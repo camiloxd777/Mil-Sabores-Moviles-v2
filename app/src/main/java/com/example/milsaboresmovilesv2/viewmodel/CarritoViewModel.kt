@@ -2,6 +2,7 @@ package com.example.milsaboresmovilesv2.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.example.milsaboresmovilesv2.ui.screens.Producto
 
 
 data class CarritoItem(val nombre: String, val descripcion: String, val imagen: Int, val precioUnitario: Int, var cantidad: Int = 1)

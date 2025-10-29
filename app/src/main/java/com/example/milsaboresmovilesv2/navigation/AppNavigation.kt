@@ -83,7 +83,7 @@ fun AppNavigation() {
                 val precio = backStackEntry.arguments?.getString("precio")?:""
                 val imagen = backStackEntry.arguments?.getInt("imagen")?:0
 
-                DetalleProductoScreen(nombre = nombre, descripcion = descripcion, precio = precio, imagen = imagen, carritoVM = carritoVM, onIrCarrito = {navController.navigate("carrito")})
+                DetalleProductoScreen(nombre = nombre, descripcion = descripcion, precio = precio, imagen = imagen, carritoVM = carritoVM, onIrCarrito = {navController.navigate("carrito")},navController=navController)
 
             }
             composable("carrito") { CarritoScreen(carritoVM) }
