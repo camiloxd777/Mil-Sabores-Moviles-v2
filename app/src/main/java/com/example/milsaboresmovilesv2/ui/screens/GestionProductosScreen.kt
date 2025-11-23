@@ -1,0 +1,328 @@
+package com.example.milsaboresmovilesv2.ui.screens.admin
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun GestionProductosScreen(
+    onBackClick: () -> Unit = {},
+    onAddProduct: () -> Unit = {},
+    onEditProduct: (String) -> Unit = {},
+    onViewStats: () -> Unit = {}
+) {
+    var searchText by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("Todos") }
+    val categories = listOf("Todos", "Tortas", "Postres", "Sin Azúcar", "Especiales")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFFBF2))
+            .padding(16.dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Gestión de Productos",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF8B4513)
+            )
+
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Barra de búsqueda
+        TextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Buscar productos...") },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = "Buscar")
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color(0xFFF8F8F8),
+                focusedContainerColor = Color(0xFFF8F8F8),
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color(0xFFE67E22)
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Filtros de categoría
+        Text(
+            text = "Categorías:",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF666666)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            categories.forEach { category ->
+                FilterChip(
+                    selected = selectedCategory == category,
+                    onClick = { selectedCategory = category },
+                    label = { Text(category) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFE67E22),
+                        selectedLabelColor = Color.White
+                    ),
+                    modifier = Modifier.height(32.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Estadísticas rápidas
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            ProductStatCard(
+                title = "Total",
+                value = "45",
+                color = Color(0xFF3498DB)
+            )
+            ProductStatCard(
+                title = "Disponibles",
+                value = "38",
+                color = Color(0xFF27AE60)
+            )
+            ProductStatCard(
+                title = "Agotados",
+                value = "7",
+                color = Color(0xFFE74C3C)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Botón agregar producto
+        Button(
+            onClick = onAddProduct,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF27AE60),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Agregar Nuevo Producto")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Lista de productos
+        Text(
+            text = "Productos (${getSampleProducts().size})",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF8B4513)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(getSampleProducts()) { product ->
+                ProductManagementItem(
+                    product = product,
+                    onEdit = { onEditProduct(product.id) },
+                    onToggleStatus = { /* Cambiar estado */ }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductStatCard(
+    title: String,
+    value: String,
+    color: Color
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = value,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                color = Color(0xFF666666)
+            )
+        }
+    }
+}
+
+@Composable
+fun ProductManagementItem(
+    product: Product,
+    onEdit: () -> Unit,
+    onToggleStatus: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Imagen del producto (placeholder)
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(Color(0xFFF8F4E8), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Cake,
+                    contentDescription = "Producto",
+                    tint = Color(0xFFD35400)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Información del producto
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = product.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF333333)
+                )
+                Text(
+                    text = product.category,
+                    fontSize = 12.sp,
+                    color = Color(0xFF666666)
+                )
+                Text(
+                    text = product.price,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE67E22)
+                )
+            }
+
+            // Estado y acciones
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                // Badge de estado
+                Text(
+                    text = if (product.inStock) "DISPONIBLE" else "AGOTADO",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (product.inStock) Color(0xFF27AE60) else Color(0xFFE74C3C)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botones de acción
+                Row {
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Editar",
+                            tint = Color(0xFF3498DB)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onToggleStatus,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            if (product.inStock) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = "Cambiar estado",
+                            tint = Color(0xFF95A5A6)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Data classes
+data class Product(
+    val id: String,
+    val name: String,
+    val category: String,
+    val price: String,
+    val inStock: Boolean
+)
+
+// Datos de ejemplo
+fun getSampleProducts(): List<Product> {
+    return listOf(
+        Product("1", "Torta Chocolate", "Tortas", "$45.000", true),
+        Product("2", "Torta Vainilla", "Tortas", "$40.000", true),
+        Product("3", "Mousse Chocolate", "Postres", "$5.000", false),
+        Product("4", "Cheesecake", "Postres", "$8.000", true),
+        Product("5", "Torta Sin Azúcar", "Sin Azúcar", "$35.000", true),
+        Product("6", "Brownie Especial", "Especiales", "$6.000", true)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GestionProductosScreenPreview() {
+    GestionProductosScreen()
+}
