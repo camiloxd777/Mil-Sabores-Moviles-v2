@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.extensions)
+    implementation(libs.androidx.compose.foundation.layout)
     ksp("androidx.room:room-compiler:2.8.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
