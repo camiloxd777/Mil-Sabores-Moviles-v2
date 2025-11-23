@@ -1,12 +1,7 @@
 package com.example.milsaboresmovilesv2.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -33,7 +26,6 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -48,23 +40,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.trace
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 
 @Composable
 fun LoginScreen(
     userVM: UserViewModel,
-    onLogInSuccess: () -> Unit = {},
+    onUserLogInSuccess: () -> Unit = {},
+    onAdminLogInSuccess: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
@@ -74,10 +62,10 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
-    //base de datos
+    // estados del ViewModel
     val loginUser by userVM.loginState.collectAsState()
     val errorMsg by userVM.error.collectAsState()
-
+    val remoteLogin by userVM.remoteLoginState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -88,6 +76,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
 
+        // Título + error
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -129,8 +118,8 @@ fun LoginScreen(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                // Email
                 Column {
-                    //Email
                     Text(
                         text = "Correo Electrónico",
                         fontSize = 14.sp,
@@ -169,7 +158,7 @@ fun LoginScreen(
                     )
                 }
 
-                //Contraseña
+                // Contraseña
                 Column {
                     Text(
                         text = "Contraseña",
@@ -199,7 +188,7 @@ fun LoginScreen(
                         ),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
-                        visualTransformation = if(passwordVisible) {
+                        visualTransformation = if (passwordVisible) {
                             VisualTransformation.None
                         } else {
                             PasswordVisualTransformation()
@@ -221,7 +210,7 @@ fun LoginScreen(
                                     } else {
                                         Icons.Default.VisibilityOff
                                     },
-                                    contentDescription = if (passwordVisible){
+                                    contentDescription = if (passwordVisible) {
                                         "Ocultar Contraseña"
                                     } else {
                                         "Mostrar Contraseña"
@@ -233,6 +222,7 @@ fun LoginScreen(
                     )
                 }
 
+                // Recordarme + ¿Olvidaste tu contraseña?
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -256,7 +246,7 @@ fun LoginScreen(
                     }
 
                     TextButton(
-                        onClick = { /*Ir a recuperar contraseña*/ }
+                        onClick = { /* TODO: recuperar contraseña */ }
                     ) {
                         Text(
                             text = "¿Olvidaste tu contraseña?",
@@ -266,11 +256,11 @@ fun LoginScreen(
                     }
                 }
 
-                //Boton Iniciar Sesion
+                // Botón Iniciar Sesión
                 Button(
                     onClick = {
                         isLoading = true
-                        userVM.login(email,password)
+                        userVM.login(email, password)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -282,7 +272,7 @@ fun LoginScreen(
                     shape = RoundedCornerShape(12.dp),
                     enabled = email.isNotEmpty() && password.isNotEmpty() && !isLoading
                 ) {
-                    if(isLoading) {
+                    if (isLoading) {
                         CircularProgressIndicator(
                             color = Color.White,
                             modifier = Modifier.size(20.dp)
@@ -295,15 +285,29 @@ fun LoginScreen(
                         )
                     }
                 }
-                LaunchedEffect(loginUser) {
+
+                // 🔁 REACCIÓN AL LOGIN (REMOTO + LOCAL)
+                LaunchedEffect(remoteLogin, loginUser) {
+                    // 1) LOGIN REMOTO (Spring)
+                    remoteLogin?.let { response ->
+                        isLoading = false
+                        when (response.user.rol.uppercase()) {
+                            "ADMIN" -> onAdminLogInSuccess()
+                            else -> onUserLogInSuccess()
+                        }
+                        return@LaunchedEffect
+                    }
+
+                    // 2) LOGIN LOCAL (Room)
                     loginUser?.let {
-                        onLogInSuccess()
+                        isLoading = false
+                        onUserLogInSuccess()
                     }
                 }
             }
         }
 
-        //Registrarse
+        // Registrarse
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -327,10 +331,3 @@ fun LoginScreen(
         }
     }
 }
-
-
-/*@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen()
-}*/

@@ -43,6 +43,8 @@ import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModelFactory
 import com.example.milsaboresmovilesv2.viewmodel.UsuarioViewModel
+import com.example.milsaboresmovilesv2.ui.screens.AdminProfileScreen
+import com.example.milsaboresmovilesv2.ui.screens.admin.GestionProductosScreen
 
 @Composable
 fun AppNavigation() {
@@ -94,7 +96,10 @@ fun AppNavigation() {
             composable("login") {
                 LoginScreen(
                     userVM = userVM,
-                    onLogInSuccess = {navController.navigate("home")}, //vuelve al home después de iniciar sesión
+                    onUserLogInSuccess = {navController.navigate("home"){popUpTo("home"){inclusive = true}
+                        launchSingleTop = true } }, //vuelve al home después de iniciar sesión
+                    onAdminLogInSuccess = {navController.navigate("adminProfile"){popUpTo("home"){inclusive = true}
+                        launchSingleTop = true } },
                     onBackClick = {navController.popBackStack()}, //vuelve al menú
                     onRegisterClick = {navController.navigate("register")} //redirige al register
                 )
@@ -133,7 +138,43 @@ fun AppNavigation() {
                 AyudaScreen(
                     navController = navController)
             }
+            composable("adminProfile") {
+                AdminProfileScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onEditProfile = {},
+                    onManageProducts = {
+                        navController.navigate("adminGestionProductos")
+                    },
+                    onViewOrders = {
+                        navController.navigate("misPedidos")
+                    },
+                    onViewStatistics = {
 
+                    },
+                    onManageUsers = {
+                        navController.navigate("bdusers")
+                    },
+                    onLogout = {
+                        navController.navigate("home"){
+                            popUpTo("home"){inclusive=true}
+                        }
+                    }
+
+                )
+            }
+            composable("adminGestionProductos") {
+                GestionProductosScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onAddProduct = {
+
+                    },
+                    onEditProduct = {/*roductId*/
+                    },
+                    onViewStats = {
+
+                    }
+                )
+            }
         }
     }
 }

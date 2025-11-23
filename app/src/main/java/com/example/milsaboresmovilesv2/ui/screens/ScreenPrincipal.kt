@@ -64,7 +64,6 @@ import kotlin.collections.emptyList
 @Composable
 fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, userVM: UserViewModel) {
     var selectedItem by remember { mutableStateOf("Home") }
-    val navController = rememberNavController()
 
 
     Box(
@@ -81,9 +80,17 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, u
             "Productos" -> ProductosScreen(navController, carritoVM)
             "Menu" -> MenuScreen(navController, userVM)
             "Login" -> LoginScreen(
-                userVM=userVM,
+                userVM = userVM,
                 onBackClick = { selectedItem = "Menu" },
-                onLogInSuccess = { selectedItem = "Home" })
+
+                onUserLogInSuccess = {
+                    selectedItem = "Home"
+                },
+
+                onAdminLogInSuccess = {
+                    selectedItem = "AdminProfileScreen"  // o "Home" para ir cambiando mientras
+                }
+            )
 
         }
     }
