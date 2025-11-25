@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,14 +27,149 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.milsaboresmovilesv2.R
 import com.example.milsaboresmovilesv2.navigation.AppNavigation
+import com.example.milsaboresmovilesv2.ui.utils.getProductImage
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
+import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 import kotlinx.coroutines.launch
 
 data class Producto(val nombre: String,val descripcion: String, val precio: String,  val imagen: Int)
 
 @Composable
-fun ProductosScreen(navController: NavController, carritoVM: CarritoViewModel) {
-    val categorias = mapOf(
+fun ProductosScreen(
+    navController: NavController,
+    carritoVM: CarritoViewModel,
+    productVM: ProductViewModel
+) {
+
+    val productos by productVM.products.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        productVM.loadProducts()
+    }
+
+    val listState = rememberLazyListState()
+    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+
+    // Agrupar por categoría como antes:
+    val categorias = productos.groupBy { it.categoria }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFF5E1))
+    ) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 80.dp)
+        ) {
+            categorias.forEach { (categoria, productosCategoria) ->
+                item {
+                    Text(
+                        text = categoria,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color(0xFF5C3A21),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                items(productosCategoria) { producto ->
+                    val uiProducto = Producto(
+                        nombre = producto.nombre,
+                        descripcion = producto.descripcion,
+                        precio = "${producto.precio}",
+                        imagen = getProductImage(producto.nombre, producto.categoria)
+                    )
+                    ProductoCard(
+                        producto = uiProducto,
+                        onAgregarClick = {
+                            navController.navigate(
+                                "detalleProducto/${
+                                    Uri.encode(uiProducto.nombre)
+                                }/${Uri.encode(uiProducto.descripcion)}/${Uri.encode(uiProducto.precio)}/${uiProducto.imagen}"
+                            )
+                        }
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showButton,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+                containerColor = Color(0xFFFFEAC4),
+                contentColor = Color(0xFF5C3A21),
+            ) {
+                Icon(Icons.Default.ArrowUpward, contentDescription = "Subir")
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ProductoCard(
+    producto: Producto,
+    onAgregarClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Image(
+                painter = painterResource(id = producto.imagen),
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(end = 12.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(producto.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(producto.descripcion, fontSize = 13.sp, color = Color.DarkGray)
+                Text(
+                    "$${producto.precio}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE66B00),
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+            Button(
+                onClick = onAgregarClick,
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC6CF)),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
+            ) {
+                Text("Ver", color = Color.White)
+            }
+        }
+    }
+}
+
+
+
+    /*val categorias = mapOf(
         //PRODUCTOS
         "Tortas Cuadradas" to listOf(
             Producto("Torta cuadrada de chocolate","Deliciosa torta de chocolate con capas de ganache y avellanas.","45.000", R.drawable.torta_chocolate),
@@ -166,5 +302,4 @@ fun ProductoCard(producto: Producto, onAgregarClick:()-> Unit) {
             }
 
         }
-    }
-}
+    }*/

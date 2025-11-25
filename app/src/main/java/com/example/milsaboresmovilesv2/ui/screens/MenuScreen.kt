@@ -61,6 +61,8 @@ import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 @Composable
 fun MenuScreen(navController: NavController, userVM: UserViewModel){
     var selectedItem by remember { mutableStateOf("Menu") }
+    val remoteLogin by userVM.remoteLoginState.collectAsState()
+    val isAdmin = remoteLogin?.user?.rol.equals("ADMIN", ignoreCase = true)
 
     Box(
         modifier = Modifier
@@ -69,6 +71,7 @@ fun MenuScreen(navController: NavController, userVM: UserViewModel){
     ) {
         MenuContent(
             userVM = userVM,
+            isAdmin = isAdmin,
             onLoginClick = { navController.navigate("login") },
             onOpcionMenuClick = { destino ->
                 when(destino) {
@@ -78,6 +81,7 @@ fun MenuScreen(navController: NavController, userVM: UserViewModel){
                     "Método de Pago" -> navController.navigate("metodoPago")
                     "Configuración" -> navController.navigate("configuracion")
                     "Ayuda y Soporte" -> navController.navigate("ayuda")
+                    "Panel administrador" -> navController.navigate("adminProfile")
                 }
             }
         )
@@ -87,6 +91,7 @@ fun MenuScreen(navController: NavController, userVM: UserViewModel){
 @Composable
 fun MenuContent(
     userVM: UserViewModel,
+    isAdmin: Boolean,
     onLoginClick: () -> Unit = {},
     onOpcionMenuClick: (String) -> Unit = {}
 ) {
@@ -218,7 +223,7 @@ fun MenuContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            getOpcionesMenu().forEach { opcion ->
+            getOpcionesMenu(isAdmin).forEach { opcion ->
                 OpcionMenuItem(
                     opcion = opcion,
                     onClick = {
@@ -366,8 +371,8 @@ data class OpcionMenu(
     val icono: ImageVector
 )
 
-fun getOpcionesMenu(): List<OpcionMenu> {
-    return listOf(
+fun getOpcionesMenu(isAdmin: Boolean): List<OpcionMenu> {
+    val base: List<OpcionMenu> = listOf(
         OpcionMenu(
             titulo = "Mis Pedidos",
             descripcion = "Revisa el historial de tus pedidos",
@@ -399,4 +404,14 @@ fun getOpcionesMenu(): List<OpcionMenu> {
             icono = Icons.Default.Help
         )
     )
+
+    return if (isAdmin) {
+        base + OpcionMenu (
+            titulo = "Panel administrador",
+            descripcion = "Gestiona productos y usuarios",
+            icono = Icons.Default.Settings
+        )
+    }else{
+        base
+    }
 }

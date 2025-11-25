@@ -1,6 +1,6 @@
 package com.example.milsaboresmovilesv2.ui.screens
 
-import androidx.compose.foundation.layout.size
+import  androidx.compose.foundation.layout.size
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -286,7 +286,7 @@ fun LoginScreen(
                     }
                 }
 
-                // 🔁 REACCIÓN AL LOGIN (REMOTO + LOCAL)
+                // REACCIÓN AL LOGIN (REMOTO + LOCAL)
                 LaunchedEffect(remoteLogin, loginUser) {
                     // 1) LOGIN REMOTO (Spring)
                     remoteLogin?.let { response ->

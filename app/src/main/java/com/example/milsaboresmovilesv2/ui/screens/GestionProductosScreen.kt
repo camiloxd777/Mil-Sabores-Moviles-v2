@@ -20,10 +20,13 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun GestionProductosScreen(
+    products: List<Product> = getSampleProducts(),
     onBackClick: () -> Unit = {},
     onAddProduct: () -> Unit = {},
     onEditProduct: (String) -> Unit = {},
-    onViewStats: () -> Unit = {}
+    onViewStats: () -> Unit = {},
+    onToggleStatus: (String, Boolean) -> Unit = {_,_ ->},
+    onDeleteProduct: (String) -> Unit = {}
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Todos") }
@@ -112,17 +115,17 @@ fun GestionProductosScreen(
         ) {
             ProductStatCard(
                 title = "Total",
-                value = "45",
+                value = products.size.toString(),
                 color = Color(0xFF3498DB)
             )
             ProductStatCard(
                 title = "Disponibles",
-                value = "38",
+                value = products.count { it.inStock }.toString(),
                 color = Color(0xFF27AE60)
             )
             ProductStatCard(
                 title = "Agotados",
-                value = "7",
+                value = products.count { !it.inStock }.toString(),
                 color = Color(0xFFE74C3C)
             )
         }
@@ -148,7 +151,7 @@ fun GestionProductosScreen(
 
         // Lista de productos
         Text(
-            text = "Productos (${getSampleProducts().size})",
+            text = "Productos (${products.size})",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF8B4513)
@@ -160,11 +163,12 @@ fun GestionProductosScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(getSampleProducts()) { product ->
+            items(products) { product ->
                 ProductManagementItem(
                     product = product,
                     onEdit = { onEditProduct(product.id) },
-                    onToggleStatus = { /* Cambiar estado */ }
+                    onToggleStatus = { onToggleStatus(product.id, !product.inStock) },
+                    onDelete = {onDeleteProduct(product.id)}
                 )
             }
         }
@@ -204,7 +208,8 @@ fun ProductStatCard(
 fun ProductManagementItem(
     product: Product,
     onEdit: () -> Unit,
-    onToggleStatus: () -> Unit
+    onToggleStatus: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -294,6 +299,16 @@ fun ProductManagementItem(
                             tint = Color(0xFF95A5A6)
                         )
                     }
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Eliminar",
+                            tint = Color(0xFFE74C3C)
+                        )
+                    }
                 }
             }
         }
@@ -321,8 +336,8 @@ fun getSampleProducts(): List<Product> {
     )
 }
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun GestionProductosScreenPreview() {
     GestionProductosScreen()
-}
+}*/

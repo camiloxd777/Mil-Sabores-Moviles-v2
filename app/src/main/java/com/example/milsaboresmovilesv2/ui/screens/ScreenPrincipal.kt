@@ -59,10 +59,12 @@ import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.flowOf
 import kotlin.collections.emptyList
+import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 
 
 @Composable
 fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, userVM: UserViewModel) {
+    val productVM: ProductViewModel = viewModel()
     var selectedItem by remember { mutableStateOf("Home") }
 
 
@@ -77,7 +79,7 @@ fun ScreenPrincipal(carritoVM: CarritoViewModel, navController: NavController, u
             "Home" -> HomeContent(
                 onVerProductosClick = { selectedItem = "Productos" },carritoVM=carritoVM
             )
-            "Productos" -> ProductosScreen(navController, carritoVM)
+            "Productos" -> ProductosScreen(navController, carritoVM, productVM)
             "Menu" -> MenuScreen(navController, userVM)
             "Login" -> LoginScreen(
                 userVM = userVM,

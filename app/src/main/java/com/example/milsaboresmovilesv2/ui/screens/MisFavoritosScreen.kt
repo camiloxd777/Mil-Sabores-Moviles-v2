@@ -78,7 +78,9 @@ fun MisFavoritosScreen(navController: NavController, userVM: UserViewModel) {
                 items(favoritos) { producto ->
                     ProductoCard(
                         producto = producto,
-                        onAgregarClick = {null}
+                        onAgregarClick = {
+
+                        }
                     )
                 }
             }

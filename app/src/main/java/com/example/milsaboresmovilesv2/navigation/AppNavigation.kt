@@ -44,7 +44,13 @@ import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModelFactory
 import com.example.milsaboresmovilesv2.viewmodel.UsuarioViewModel
 import com.example.milsaboresmovilesv2.ui.screens.AdminProfileScreen
+import com.example.milsaboresmovilesv2.ui.screens.EstadisticasScreen
+import com.example.milsaboresmovilesv2.ui.screens.GestionUsuariosScreen
+import com.example.milsaboresmovilesv2.ui.screens.Usuario
+import com.example.milsaboresmovilesv2.ui.screens.admin.GestionPedidosScreen
 import com.example.milsaboresmovilesv2.ui.screens.admin.GestionProductosScreen
+import com.example.milsaboresmovilesv2.ui.screens.admin.Product
+import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 
 @Composable
 fun AppNavigation() {
@@ -73,7 +79,8 @@ fun AppNavigation() {
             modifier = androidx.compose.ui.Modifier.padding(innerPadding)
         ) {
             composable("home") { ScreenPrincipal(carritoVM=carritoVM, navController=navController, userVM=userVM) }
-            composable("productos") { ProductosScreen(navController, carritoVM) } //pestaña productos
+            composable("productos") { val productVM: ProductViewModel = viewModel()
+                ProductosScreen(navController, carritoVM, productVM) } //pestaña productos
             composable("menu") { MenuScreen(navController, userVM) }
             composable (
                 "detalleProducto/{nombre}/{descripcion}/{precio}/{imagen}",
@@ -140,37 +147,122 @@ fun AppNavigation() {
             }
             composable("adminProfile") {
                 AdminProfileScreen(
-                    onBackClick = {navController.popBackStack()},
+                    onBackClick = {navController.navigate("menu"){popUpTo("menu"){inclusive = true}
+                        launchSingleTop= true} },
                     onEditProfile = {},
                     onManageProducts = {
                         navController.navigate("adminGestionProductos")
                     },
                     onViewOrders = {
-                        navController.navigate("misPedidos")
+                        navController.navigate("adminGestionPedidos")
                     },
                     onViewStatistics = {
-
+                        navController.navigate("adminEstadisticas")
                     },
                     onManageUsers = {
-                        navController.navigate("bdusers")
+                        navController.navigate("adminGestionUsuarios")
                     },
                     onLogout = {
+                        userVM.logout()
                         navController.navigate("home"){
                             popUpTo("home"){inclusive=true}
+                            launchSingleTop=true
                         }
                     }
 
                 )
             }
             composable("adminGestionProductos") {
+                val productVM: ProductViewModel = viewModel()
+                val adminProducts by productVM.adminProducts.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    productVM.loadAdminProducts()
+                }
+
+                val uiProducts = adminProducts.map { remote ->
+                    Product(
+                        id = remote.id.toString(),
+                        name = remote.nombre,
+                        category = remote.categoria,
+                        price = "$${remote.precio}",
+                        inStock = remote.activo
+                    )
+                }
+
                 GestionProductosScreen(
-                    onBackClick = {navController.popBackStack()},
+                    products = uiProducts,
+                    onBackClick = { navController.popBackStack() },
+                    onDeleteProduct = {idStr ->
+                        val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
+                        productVM.deleteProduct(id)},
                     onAddProduct = {
+                        // aquí podrías navegar a una pantalla de "nuevo producto"
+                    },
+                    onEditProduct = { idStr ->
+                        // navegar a pantalla de edición pasando idStr
+                    },
+                    onToggleStatus = { idStr, nuevoEstado ->
+                        val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
+                        productVM.toggleProductActivo(id, nuevoEstado)
+                    }
+                )
+            }
+
+            composable("adminGestionUsuarios") {
+
+                val remoteUsers by userVM.remoteUsers.collectAsState()
+
+                // Cargar usuarios de la API cuando entro a la pantalla
+                LaunchedEffect(Unit) {
+                    userVM.loadRemoteUsers()
+                }
+
+                GestionUsuariosScreen(
+                    usuarios = remoteUsers.map { remote ->
+                        Usuario(
+                            id = remote.id.toString(),
+                            nombre = remote.nombre,
+                            email = remote.email,
+                            rol = remote.rol,
+                            activo = true,
+                            fechaRegistro = "",   // de momento sin datos
+                            telefono = "",
+                            ultimoAcceso = ""
+                        )
+                    },
+                    onBackClick = { navController.popBackStack() },
+
+                    onToggleUserStatus = { _, _ ->
+                    },
+
+                    onDeleteUser = { id -> userVM.deleteRemoteUser(id.toLong())
+                    },
+
+                    onViewUserDetails = { /* */ },
+                    onEditUser = { /*  */ }
+                )
+            }
+
+            composable("adminEstadisticas") {
+                EstadisticasScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onExportReport = { formato ->
 
                     },
-                    onEditProduct = {/*roductId*/
+                    onViewDetailedStats = { tipo ->
+
+                    }
+                )
+            }
+
+            composable("adminGestionPedidos") {
+                GestionPedidosScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onViewOrderDetails = { orderId ->
+
                     },
-                    onViewStats = {
+                    onUpdateOrderStatus = { orderId, newStatus ->
 
                     }
                 )
@@ -178,6 +270,7 @@ fun AppNavigation() {
         }
     }
 }
+
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
