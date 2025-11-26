@@ -21,6 +21,7 @@ class ProductViewModelTest : StringSpec({
 
     lateinit var mockRepo: ProductRepository
     val testDispatcher = StandardTestDispatcher()
+    val dummyToken = "dummy_token"
 
     beforeTest {
         Dispatchers.setMain(testDispatcher)
@@ -34,8 +35,8 @@ class ProductViewModelTest : StringSpec({
     "loadProducts debe cargar productos correctamente" {
         runTest {
             val mockProducts = listOf(
-                RemoteProductDto(1, "Pan", "Pan fresco", 1000, "Panadería", true),
-                RemoteProductDto(2, "Jugo", "Naranja", 1500, "Bebidas", true)
+                RemoteProductDto(1L, "Pan", "Pan fresco", 1000, "Panadería", true),
+                RemoteProductDto(2L, "Jugo", "Naranja", 1500, "Bebidas", true)
             )
 
             coEvery { mockRepo.getRemoteProducts() } returns mockProducts
@@ -52,14 +53,14 @@ class ProductViewModelTest : StringSpec({
     "loadAdminProducts debe cargar productos admin" {
         runTest {
             val mockAdmins = listOf(
-                RemoteProductDto(10, "Pizza", "Grande", 8990, "Comida", true)
+                RemoteProductDto(10L, "Pizza", "Grande", 8990, "Comida", true)
             )
 
-            coEvery { mockRepo.getRemoteProductsAdmin() } returns mockAdmins
+            coEvery { mockRepo.getRemoteProductsAdmin(dummyToken) } returns mockAdmins
 
             val viewModel = ProductViewModel(mockRepo)
 
-            viewModel.loadAdminProducts()
+            viewModel.loadAdminProducts(dummyToken)
             advanceUntilIdle()
 
             viewModel.adminProducts.value shouldBe mockAdmins
@@ -68,20 +69,20 @@ class ProductViewModelTest : StringSpec({
 
     "toggleProductActivo debe actualizar el producto correctamente" {
         runTest {
-            val original = RemoteProductDto(1, "Pan", "Fresco", 1000, "Panadería", true)
+            val original = RemoteProductDto(1L, "Pan", "Fresco", 1000, "Panadería", true)
             val updated = original.copy(activo = false)
             val request = RemoteProductRequest("Pan", "Fresco", 1000, "Panadería", false)
 
 
-            coEvery { mockRepo.getRemoteProductsAdmin() } returns listOf(original)
-            coEvery { mockRepo.updateRemoteProduct(1, request) } returns updated
+            coEvery { mockRepo.getRemoteProductsAdmin(dummyToken) } returns listOf(original)
+            coEvery { mockRepo.updateRemoteProduct(dummyToken, 1L, request) } returns updated
 
             val viewModel = ProductViewModel(mockRepo)
 
-            viewModel.loadAdminProducts()
+            viewModel.loadAdminProducts(dummyToken)
             advanceUntilIdle()
 
-            viewModel.toggleProductActivo(1, false)
+            viewModel.toggleProductActivo(dummyToken, 1L, false)
             advanceUntilIdle()
 
             viewModel.adminProducts.value.first().activo shouldBe false
@@ -98,17 +99,17 @@ class ProductViewModelTest : StringSpec({
                 activo = true
             )
 
-            val created = RemoteProductDto(99, "Torta", "Chocolate", 12000, "Pastelería", true)
+            val created = RemoteProductDto(99L, "Torta", "Chocolate", 12000, "Pastelería", true)
 
-            coEvery { mockRepo.addRemoteProduct(request) } returns created
-            coEvery { mockRepo.getRemoteProductsAdmin() } returns emptyList()
+            coEvery { mockRepo.addRemoteProduct(dummyToken, request) } returns created
+            coEvery { mockRepo.getRemoteProductsAdmin(dummyToken) } returns emptyList()
 
 
             val viewModel = ProductViewModel(mockRepo)
-            viewModel.loadAdminProducts()
+            viewModel.loadAdminProducts(dummyToken)
             advanceUntilIdle()
 
-            viewModel.addProduct(request)
+            viewModel.addProduct(dummyToken, request)
             advanceUntilIdle()
 
             viewModel.adminProducts.value shouldBe listOf(created)
