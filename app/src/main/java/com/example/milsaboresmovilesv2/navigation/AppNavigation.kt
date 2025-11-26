@@ -1,63 +1,50 @@
 package com.example.milsaboresmovilesv2.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.milsaboresmovilesv2.ui.screens.ProductosScreen
-import com.example.milsaboresmovilesv2.ui.screens.MenuScreen
-import androidx.compose.material3.Scaffold
-import com.example.milsaboresmovilesv2.ui.components.TopBar
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.room.Room
 import com.example.milsaboresmovilesv2.data.local.AppDatabase
 import com.example.milsaboresmovilesv2.data.repository.UserRepository
 import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
-import com.example.milsaboresmovilesv2.ui.screens.AyudaScreen
-import com.example.milsaboresmovilesv2.ui.screens.BdUsersScreen
-import com.example.milsaboresmovilesv2.ui.screens.CarritoScreen
-import com.example.milsaboresmovilesv2.ui.screens.ConfiguracionScreen
-import com.example.milsaboresmovilesv2.ui.screens.DireccionesScreen
-import com.example.milsaboresmovilesv2.ui.screens.LoginScreen
-import com.example.milsaboresmovilesv2.ui.screens.MetodoPagoScreen
-import com.example.milsaboresmovilesv2.ui.screens.MisFavoritosScreen
-import com.example.milsaboresmovilesv2.ui.screens.MisPedidosScreen
-import com.example.milsaboresmovilesv2.ui.screens.RegisterScreen
-import com.example.milsaboresmovilesv2.ui.screens.ScreenPrincipal
-import com.example.milsaboresmovilesv2.ui.screens.UsersScreen
+import com.example.milsaboresmovilesv2.ui.components.TopBar
+import com.example.milsaboresmovilesv2.ui.screens.*
+import com.example.milsaboresmovilesv2.ui.screens.admin.*
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
+import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModelFactory
-import com.example.milsaboresmovilesv2.viewmodel.UsuarioViewModel
-import com.example.milsaboresmovilesv2.ui.screens.AdminProfileScreen
-import com.example.milsaboresmovilesv2.ui.screens.EstadisticasScreen
-import com.example.milsaboresmovilesv2.ui.screens.GestionUsuariosScreen
-import com.example.milsaboresmovilesv2.ui.screens.Usuario
-import com.example.milsaboresmovilesv2.ui.screens.admin.GestionPedidosScreen
-import com.example.milsaboresmovilesv2.ui.screens.admin.GestionProductosScreen
-import com.example.milsaboresmovilesv2.ui.screens.admin.Product
-import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val carritoVM: CarritoViewModel = viewModel()
 
-    //creacion base de datos
     val context = LocalContext.current
     val db = Room.databaseBuilder(
         context,
@@ -68,108 +55,125 @@ fun AppNavigation() {
     val repository = UserRepository(db.userDao())
     val userVM: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val adminRoutes = setOf(
+        "adminProfile",
+        "adminGestionProductos",
+        "adminGestionPedidos",
+        "adminEstadisticas",
+        "adminGestionUsuarios",
+        "adminEditProfile"
+    )
+
+    val userScreensWithNavBar = setOf("home", "productos", "menu")
+
+    val showCart = currentRoute !in adminRoutes
 
     Scaffold(
         topBar = { TopBar(navController, badgeCount = carritoVM.totalItems()) },
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = {
+            if (currentRoute in userScreensWithNavBar) {
+                BottomNavBar(navController)
+            } else if (currentRoute in adminRoutes) {
+                AdminBottomNavBar(navController)
+            }
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = "home",
-            modifier = androidx.compose.ui.Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { ScreenPrincipal(carritoVM=carritoVM, navController=navController, userVM=userVM) }
-            composable("productos") { val productVM: ProductViewModel = viewModel()
-                ProductosScreen(navController, carritoVM, productVM) } //pestaña productos
+            composable("home") { ScreenPrincipal(carritoVM = carritoVM, navController = navController, userVM = userVM) }
+            composable("productos") { 
+                val productVM: ProductViewModel = viewModel()
+                ProductosScreen(navController, carritoVM, productVM) 
+            }
             composable("menu") { MenuScreen(navController, userVM) }
-            composable (
+            composable(
                 "detalleProducto/{nombre}/{descripcion}/{precio}/{imagen}",
                 arguments = listOf(
-                    navArgument("nombre"){type = NavType.StringType},
-                    navArgument("descripcion"){type = NavType.StringType},
-                    navArgument("precio"){type = NavType.StringType},
-                    navArgument("imagen"){type = NavType.IntType},
+                    navArgument("nombre") { type = NavType.StringType },
+                    navArgument("descripcion") { type = NavType.StringType },
+                    navArgument("precio") { type = NavType.StringType },
+                    navArgument("imagen") { type = NavType.IntType },
                 )
-            ){ backStackEntry ->
-                val nombre = backStackEntry.arguments?.getString("nombre")?:""
-                val descripcion = backStackEntry.arguments?.getString("descripcion")?:""
-                val precio = backStackEntry.arguments?.getString("precio")?:""
-                val imagen = backStackEntry.arguments?.getInt("imagen")?:0
+            ) { backStackEntry ->
+                val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
+                val descripcion = backStackEntry.arguments?.getString("descripcion") ?: ""
+                val precio = backStackEntry.arguments?.getString("precio") ?: ""
+                val imagen = backStackEntry.arguments?.getInt("imagen") ?: 0
 
-                DetalleProductoScreen(nombre = nombre, descripcion = descripcion, precio = precio, imagen = imagen, carritoVM = carritoVM, onIrCarrito = {navController.navigate("carrito")},navController=navController)
-
+                DetalleProductoScreen(
+                    nombre = nombre,
+                    descripcion = descripcion,
+                    precio = precio,
+                    imagen = imagen,
+                    carritoVM = carritoVM,
+                    onIrCarrito = { navController.navigate("carrito") },
+                    navController = navController
+                )
             }
             composable("carrito") { CarritoScreen(carritoVM) }
             composable("login") {
                 LoginScreen(
                     userVM = userVM,
-                    onUserLogInSuccess = {navController.navigate("home"){popUpTo("home"){inclusive = true}
-                        launchSingleTop = true } }, //vuelve al home después de iniciar sesión
-                    onAdminLogInSuccess = {navController.navigate("adminProfile"){popUpTo("home"){inclusive = true}
-                        launchSingleTop = true } },
-                    onBackClick = {navController.popBackStack()}, //vuelve al menú
-                    onRegisterClick = {navController.navigate("register")} //redirige al register
+                    onUserLogInSuccess = { 
+                        navController.navigate("home") { 
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true 
+                        } 
+                    },
+                    onAdminLogInSuccess = { 
+                        navController.navigate("adminProfile") { 
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true 
+                        } 
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    onRegisterClick = { navController.navigate("register") }
                 )
             }
             composable("register") {
                 RegisterScreen(
                     userVM = userVM,
-                    onRegisterSuccess = {navController.navigate("login")},
-                    onGoToLogin = {navController.popBackStack()}
+                    onRegisterSuccess = { navController.navigate("login") },
+                    onGoToLogin = { navController.popBackStack() }
                 )
             }
-            composable(route="bdusers") {
+            composable(route = "bdusers") {
                 UsersScreen(userVM)
             }
-            composable("misPedidos") {
-                MisPedidosScreen(
-                    navController = navController,
-                    userVM = userVM)
-            }
-            composable("direcciones") {
-                DireccionesScreen(navController, userVM)
-            }
-            composable("misFavoritos") {
-                MisFavoritosScreen(
-                    navController, userVM)
-            }
-            composable("metodoPago") {
-                MetodoPagoScreen(
-                    navController, userVM)
-            }
-            composable("configuracion") {
-                ConfiguracionScreen(
-                    navController, userVM)
-            }
-            composable("ayuda") {
-                AyudaScreen(
-                    navController = navController)
-            }
+            composable("misPedidos") { MisPedidosScreen(navController = navController, userVM = userVM) }
+            composable("direcciones") { DireccionesScreen(navController, userVM) }
+            composable("misFavoritos") { MisFavoritosScreen(navController, userVM) }
+            composable("metodoPago") { MetodoPagoScreen(navController, userVM) }
+            composable("configuracion") { ConfiguracionScreen(navController, userVM) }
+            composable("ayuda") { AyudaScreen(navController = navController) }
+
+            // Admin Routes
             composable("adminProfile") {
                 AdminProfileScreen(
-                    onBackClick = {navController.navigate("menu"){popUpTo("menu"){inclusive = true}
-                        launchSingleTop= true} },
-                    onEditProfile = {},
-                    onManageProducts = {
-                        navController.navigate("adminGestionProductos")
-                    },
-                    onViewOrders = {
-                        navController.navigate("adminGestionPedidos")
-                    },
-                    onViewStatistics = {
-                        navController.navigate("adminEstadisticas")
-                    },
-                    onManageUsers = {
-                        navController.navigate("adminGestionUsuarios")
-                    },
+                    onEditProfile = { navController.navigate("adminEditProfile") },
+                    onManageProducts = { navController.navigate("adminGestionProductos") },
+                    onViewOrders = { navController.navigate("adminGestionPedidos") },
+                    onViewStatistics = { navController.navigate("adminEstadisticas") },
+                    onManageUsers = { navController.navigate("adminGestionUsuarios") },
                     onLogout = {
                         userVM.logout()
-                        navController.navigate("home"){
-                            popUpTo("home"){inclusive=true}
-                            launchSingleTop=true
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
-
+                )
+            }
+            composable("adminEditProfile") {
+                AdminEditProfileScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onSaveClick = { navController.popBackStack() }
                 )
             }
             composable("adminGestionProductos") {
@@ -193,30 +197,19 @@ fun AppNavigation() {
                 GestionProductosScreen(
                     products = uiProducts,
                     onBackClick = { navController.popBackStack() },
-                    onDeleteProduct = {idStr ->
+                    onDeleteProduct = { idStr ->
                         val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
-                        productVM.deleteProduct(id)},
-                    onAddProduct = {
-                        // aquí podrías navegar a una pantalla de "nuevo producto"
+                        productVM.deleteProduct(id)
                     },
-                    onEditProduct = { idStr ->
-                        // navegar a pantalla de edición pasando idStr
-                    },
-                    onToggleStatus = { idStr, nuevoEstado ->
+                    onToggleStatus = { idStr, newState ->
                         val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
-                        productVM.toggleProductActivo(id, nuevoEstado)
+                        productVM.toggleProductActivo(id, newState)
                     }
                 )
             }
-
             composable("adminGestionUsuarios") {
-
                 val remoteUsers by userVM.remoteUsers.collectAsState()
-
-                // Cargar usuarios de la API cuando entro a la pantalla
-                LaunchedEffect(Unit) {
-                    userVM.loadRemoteUsers()
-                }
+                LaunchedEffect(Unit) { userVM.loadRemoteUsers() }
 
                 GestionUsuariosScreen(
                     usuarios = remoteUsers.map { remote ->
@@ -225,52 +218,25 @@ fun AppNavigation() {
                             nombre = remote.nombre,
                             email = remote.email,
                             rol = remote.rol,
-                            activo = true,
-                            fechaRegistro = "",   // de momento sin datos
-                            telefono = "",
-                            ultimoAcceso = ""
+                            activo = true, // Placeholder
+                            fechaRegistro = "", // Placeholder
+                            telefono = "", // Placeholder
+                            ultimoAcceso = "" // Placeholder
                         )
                     },
                     onBackClick = { navController.popBackStack() },
-
-                    onToggleUserStatus = { _, _ ->
-                    },
-
-                    onDeleteUser = { id -> userVM.deleteRemoteUser(id.toLong())
-                    },
-
-                    onViewUserDetails = { /* */ },
-                    onEditUser = { /*  */ }
+                    onDeleteUser = { id -> userVM.deleteRemoteUser(id.toLong()) }
                 )
             }
-
             composable("adminEstadisticas") {
-                EstadisticasScreen(
-                    onBackClick = {navController.popBackStack()},
-                    onExportReport = { formato ->
-
-                    },
-                    onViewDetailedStats = { tipo ->
-
-                    }
-                )
+                EstadisticasScreen(onBackClick = { navController.popBackStack() })
             }
-
             composable("adminGestionPedidos") {
-                GestionPedidosScreen(
-                    onBackClick = {navController.popBackStack()},
-                    onViewOrderDetails = { orderId ->
-
-                    },
-                    onUpdateOrderStatus = { orderId, newStatus ->
-
-                    }
-                )
+                GestionPedidosScreen(onBackClick = { navController.popBackStack() })
             }
         }
     }
 }
-
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
@@ -286,7 +252,7 @@ fun BottomNavBar(navController: NavHostController) {
         items.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { androidx.compose.material3.Text(item.label) },
+                label = { Text(item.label) },
                 selected = currentRoute == item.route,
                 onClick = {
                     if (currentRoute != item.route) {
@@ -301,4 +267,43 @@ fun BottomNavBar(navController: NavHostController) {
     }
 }
 
-data class NavItem(val route: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val label: String)
+@Composable
+fun AdminBottomNavBar(navController: NavHostController) {
+    val items = listOf(
+        NavItem("adminProfile", Icons.Default.Person, "Perfil"),
+        NavItem("adminGestionProductos", Icons.Default.ShoppingBag, "Productos"),
+        NavItem("adminGestionPedidos", Icons.Default.ShoppingCart, "Pedidos"),
+        NavItem("adminGestionUsuarios", Icons.Default.People, "Usuarios"),
+        NavItem("adminEstadisticas", Icons.Default.BarChart, "Stats")
+    )
+
+    NavigationBar(containerColor = Color(0xFF8B4513)) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+        items.forEach { item ->
+            NavigationBarItem(
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label) },
+                selected = currentRoute == item.route,
+                onClick = {
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            popUpTo("adminProfile") { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = Color(0xFFD3C1B1),
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color(0xFFD3C1B1),
+                    indicatorColor = Color(0xFF6A360D)
+                )
+            )
+        }
+    }
+}
+
+data class NavItem(val route: String, val icon: ImageVector, val label: String)

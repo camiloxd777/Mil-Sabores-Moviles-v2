@@ -1,4 +1,4 @@
-package com.example.milsaboresmovilesv2.ui.screens.admin
+package com.example.milsaboresmovilesv2.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,30 +26,49 @@ fun GestionPedidosScreen(
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("Todos") }
-    val filters = listOf("Todos", "Pendientes", "En Proceso", "Completados", "Cancelados")
+    val filters = listOf("Todos", "Pendientes", "En Proceso", "Completado", "Cancelados")
+
+    val filteredOrders = remember(searchText, selectedFilter) {
+        getSampleOrders().filter { order ->
+            val searchMatch = searchText.isBlank() ||
+                    order.id.contains(searchText, ignoreCase = true) ||
+                    order.customerName.contains(searchText, ignoreCase = true)
+
+            val filterMatch = when (selectedFilter) {
+                "Todos" -> true
+                "Pendientes" -> order.status.equals("Pendiente", ignoreCase = true)
+                "En Proceso" -> order.status.equals("En Proceso", ignoreCase = true)
+                "Completado" -> order.status.equals("Completado", ignoreCase = true)
+                "Cancelados" -> order.status.equals("Cancelado", ignoreCase = true)
+                else -> false
+            }
+            searchMatch && filterMatch
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFFBF2))
+            .background(Color(0xFFFDFBF6))
             .padding(16.dp)
     ) {
         // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
             Text(
                 text = "Gestión de Pedidos",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF8B4513)
+                color = Color(0xFF8B4513),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
             )
-
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
+            Spacer(modifier = Modifier.width(48.dp)) // For balance
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -75,15 +94,6 @@ fun GestionPedidosScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Filtros de estado
-        Text(
-            text = "Filtrar por:",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF666666)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -110,21 +120,25 @@ fun GestionPedidosScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OrderStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Hoy",
                 value = "24",
                 color = Color(0xFF3498DB)
             )
             OrderStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Pendientes",
                 value = "12",
                 color = Color(0xFFF39C12)
             )
             OrderStatCard(
-                title = "Completados",
+                modifier = Modifier.weight(1f),
+                title = "Completado",
                 value = "8",
                 color = Color(0xFF27AE60)
             )
             OrderStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Cancelados",
                 value = "4",
                 color = Color(0xFFE74C3C)
@@ -136,7 +150,7 @@ fun GestionPedidosScreen(
         // Resumen del día
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F4FD)),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
@@ -190,7 +204,7 @@ fun GestionPedidosScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(getSampleOrders()) { order ->
+            items(filteredOrders) { order ->
                 OrderManagementItem(
                     order = order,
                     onViewDetails = { onViewOrderDetails(order.id) },
@@ -203,16 +217,20 @@ fun GestionPedidosScreen(
 
 @Composable
 fun OrderStatCard(
+    modifier: Modifier = Modifier,
     title: String,
     value: String,
     color: Color
 ) {
     Card(
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,18 +93,13 @@ fun AdminProfileScreen(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
-                        )
-                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Panel Administrador",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2C3E50)
+                        color = Color(0xFF2C3E50),
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -216,8 +212,8 @@ fun AdminProfileScreen(
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatCard("Pedidos Hoy", "24", Color(0xFF27AE60), Modifier.weight(1f))
-            StatCard("Productos", "100", Color(0xFF3498DB), Modifier.weight(1f))
+            StatCard("Pedidos Hoy", "24", Color(0xFF27AE60), modifier = Modifier.weight(1f))
+            StatCard("Productos", "100", Color(0xFF3498DB), modifier = Modifier.weight(1f))
         }
 
         Row(
@@ -226,8 +222,8 @@ fun AdminProfileScreen(
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatCard("Usuarios", "1K", Color(0xFF9B59B6), Modifier.weight(1f))
-            StatCard("Ingresos Mes", "$1M", Color(0xFFE67E22), Modifier.weight(1f))
+            StatCard("Usuarios", "1K", Color(0xFF9B59B6), modifier = Modifier.weight(1f))
+            StatCard("Ingresos Mes", "$1M", Color(0xFFE67E22), modifier = Modifier.weight(1f))
         }
 
         /** PANEL ADMIN **/
@@ -262,7 +258,7 @@ fun AdminProfileScreen(
             text = "Acciones Críticas",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFC0392B),
+            color = Color(0xFF8B4513),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
 
@@ -271,7 +267,7 @@ fun AdminProfileScreen(
                 .fillMaxWidth()
                 .padding(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFFF5F5)
+                containerColor = Color(0xFFFFFFFF)
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             shape = RoundedCornerShape(12.dp)
@@ -322,14 +318,17 @@ fun AdminProfileScreen(
 /** COMPONENTES **/
 
 @Composable
-fun StatCard(title: String, value: String, color: Color, weight: Modifier) {
+fun StatCard(title: String, value: String, color: Color, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = color)

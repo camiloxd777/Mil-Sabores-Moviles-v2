@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,16 +45,17 @@ fun GestionUsuariosScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
             Text(
                 text = "Gestión de Usuarios",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF8B4513)
+                color = Color(0xFF8B4513),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
             )
-
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
 
         }
 
@@ -139,7 +141,7 @@ fun GestionUsuariosScreen(
         // Resumen de actividad
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F4FD)),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
@@ -377,7 +379,6 @@ fun UsuarioManagementItem(
 
 
             // Información del usuario
-
             Column(
 
                 modifier = Modifier.weight(1f)
@@ -479,71 +480,40 @@ fun UsuarioManagementItem(
                         verticalAlignment = Alignment.CenterVertically
 
                     ) {
-
                         Box(
-
                             modifier = Modifier
-
                                 .size(8.dp)
-
                                 .background(
-
                                     if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C),
-
                                     RoundedCornerShape(4.dp)
-
                                 )
-
                         )
 
                         Spacer(modifier = Modifier.width(4.dp))
 
                         Text(
-
                             text = if (usuario.activo) "Activo" else "Inactivo",
-
                             fontSize = 12.sp,
-
                             color = if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C)
-
                         )
-
                     }
-
                 }
-
             }
-
-
 
             Spacer(modifier = Modifier.width(16.dp))
 
-
-
             // Acciones
-
             Column {
-
                 // Botón de estado
-
                 IconButton(
-
                     onClick = { onToggleStatus(!usuario.activo) },
-
                     modifier = Modifier.size(36.dp)
-
                 ) {
-
                     Icon(
-
                         if (usuario.activo) Icons.Default.PersonOff else Icons.Default.Person,
-
                         contentDescription = if (usuario.activo) "Desactivar" else "Activar",
-
                         tint = if (usuario.activo) Color(0xFFE74C3C) else Color(0xFF27AE60)
-
                     )
-
                 }
 
 
@@ -551,205 +521,111 @@ fun UsuarioManagementItem(
                 // Botón editar
 
                 IconButton(
-
                     onClick = onEdit,
-
                     modifier = Modifier.size(36.dp)
-
                 ) {
-
                     Icon(
-
                         Icons.Default.Edit,
-
                         contentDescription = "Editar",
-
                         tint = Color(0xFF3498DB)
-
                     )
-
                 }
-
                 IconButton(
-
                     onClick = onDelete,
-
                     modifier = Modifier.size(36.dp)
-
                 ) {
-
                     Icon(
-
                         Icons.Default.Delete,
-
                         contentDescription = "Eliminar",
-
                         tint = Color(0xFFE74C3C)
-
                     )
-
                 }
-
             }
-
         }
 
-
-
-        // Footer con acciones adicionales
-
+        // Footer
         Row(
-
             modifier = Modifier
-
                 .fillMaxWidth()
-
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-
             horizontalArrangement = Arrangement.End
-
         ) {
-
             TextButton(onClick = onViewDetails) {
-
                 Text("Ver Detalles")
-
             }
-
         }
-
     }
-
 }
 
-
-
-// Data classes en español
-
 data class Usuario(
-
     val id: String,
-
     val nombre: String,
-
     val email: String,
-
     val rol: String,
-
     val activo: Boolean,
-
     val fechaRegistro: String,
-
     val telefono: String,
-
     val ultimoAcceso: String
-
 )
 
 
 
-// Datos de ejemplo en español
 
 fun getUsuariosEjemplo(): List<Usuario> {
-
     return listOf(
-
         Usuario(
-
             id = "1",
-
             nombre = "María González",
-
             email = "maria.gonzalez@email.com",
-
             rol = "Administrador",
-
             activo = true,
-
             fechaRegistro = "15/03/2024",
-
             telefono = "+56 9 1234 5678",
-
             ultimoAcceso = "Hoy, 14:30"
-
         ),
 
         Usuario(
-
             id = "2",
-
             nombre = "Carlos López",
-
             email = "carlos.lopez@email.com",
-
             rol = "Cliente",
-
             activo = true,
-
             fechaRegistro = "20/02/2024",
-
             telefono = "+56 9 8765 4321",
-
             ultimoAcceso = "Ayer, 18:45"
-
         ),
 
         Usuario(
-
             id = "3",
-
             nombre = "Ana Martínez",
-
             email = "ana.martinez@email.com",
-
             rol = "Cliente",
-
             activo = false,
-
             fechaRegistro = "10/01/2024",
-
             telefono = "+56 9 5555 6666",
-
             ultimoAcceso = "05/12/2024"
 
         ),
 
         Usuario(
-
             id = "4",
-
             nombre = "Pedro Sánchez",
-
             email = "pedro.sanchez@email.com",
-
             rol = "Cliente",
-
             activo = true,
-
             fechaRegistro = "05/04/2024",
-
             telefono = "+56 9 7777 8888",
-
             ultimoAcceso = "Hoy, 09:15"
-
         ),
 
         Usuario(
-
             id = "5",
-
             nombre = "Laura Rodríguez",
-
             email = "laura.rodriguez@email.com",
-
             rol = "Administrador",
-
             activo = true,
-
             fechaRegistro = "12/03/2024",
-
             telefono = "+56 9 9999 0000",
-
             ultimoAcceso = "Hoy, 11:20"
 
         )
@@ -760,12 +636,9 @@ fun getUsuariosEjemplo(): List<Usuario> {
 
 
 
-/*@Preview(showBackground = true)
-
+@Preview(showBackground = true)
 @Composable
-
 fun GestionUsuariosScreenPreview() {
-
     GestionUsuariosScreen(usuarios = getUsuariosEjemplo())
 
-}*/
+}

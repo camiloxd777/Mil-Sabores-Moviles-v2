@@ -42,16 +42,18 @@ fun EstadisticasScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
             Text(
                 text = "Estadísticas y Reportes",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF8B4513)
+                color = Color(0xFF8B4513),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
             )
 
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))

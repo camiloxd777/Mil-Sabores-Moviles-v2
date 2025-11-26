@@ -25,12 +25,20 @@ fun GestionProductosScreen(
     onAddProduct: () -> Unit = {},
     onEditProduct: (String) -> Unit = {},
     onViewStats: () -> Unit = {},
-    onToggleStatus: (String, Boolean) -> Unit = {_,_ ->},
+    onToggleStatus: (String, Boolean) -> Unit = { _, _ -> },
     onDeleteProduct: (String) -> Unit = {}
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Todos") }
     val categories = listOf("Todos", "Tortas", "Postres", "Sin Azúcar", "Especiales")
+
+    val filteredProducts = remember(products, searchText, selectedCategory) {
+        products.filter {
+            val searchMatch = searchText.isBlank() || it.name.contains(searchText, ignoreCase = true)
+            val categoryMatch = selectedCategory == "Todos" || it.category.equals(selectedCategory, ignoreCase = true)
+            searchMatch && categoryMatch
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -44,16 +52,18 @@ fun GestionProductosScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
             Text(
                 text = "Gestión de Productos",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF8B4513)
+                color = Color(0xFF8B4513),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
             )
-
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
+            Spacer(modifier = Modifier.width(48.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -114,16 +124,19 @@ fun GestionProductosScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             ProductStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Total",
                 value = products.size.toString(),
                 color = Color(0xFF3498DB)
             )
             ProductStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Disponibles",
                 value = products.count { it.inStock }.toString(),
                 color = Color(0xFF27AE60)
             )
             ProductStatCard(
+                modifier = Modifier.weight(1f),
                 title = "Agotados",
                 value = products.count { !it.inStock }.toString(),
                 color = Color(0xFFE74C3C)
@@ -137,7 +150,7 @@ fun GestionProductosScreen(
             onClick = onAddProduct,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF27AE60),
+                containerColor = Color(0xFFFFC0CB),
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(12.dp)
@@ -151,7 +164,7 @@ fun GestionProductosScreen(
 
         // Lista de productos
         Text(
-            text = "Productos (${products.size})",
+            text = "Productos (${filteredProducts.size})",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF8B4513)
@@ -163,12 +176,12 @@ fun GestionProductosScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(products) { product ->
+            items(filteredProducts) { product ->
                 ProductManagementItem(
                     product = product,
                     onEdit = { onEditProduct(product.id) },
                     onToggleStatus = { onToggleStatus(product.id, !product.inStock) },
-                    onDelete = {onDeleteProduct(product.id)}
+                    onDelete = { onDeleteProduct(product.id) }
                 )
             }
         }
@@ -177,16 +190,20 @@ fun GestionProductosScreen(
 
 @Composable
 fun ProductStatCard(
+    modifier: Modifier = Modifier,
     title: String,
     value: String,
     color: Color
 ) {
     Card(
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -336,8 +353,8 @@ fun getSampleProducts(): List<Product> {
     )
 }
 
-/*@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun GestionProductosScreenPreview() {
     GestionProductosScreen()
-}*/
+}
