@@ -15,6 +15,8 @@ import retrofit2.http.Path
 
 //http://10.0.2.2:8080/api
 
+//http://100.27.234.180:8080/api
+
 
 data class RemoteUserDto(
     val id: Long,
