@@ -8,7 +8,7 @@ interface ProductApiService {
     @GET("products")
     suspend fun getProducts(): List<RemoteProductDto>
 
-    @GET("admin/products")
+    @GET("products/admin")
     suspend fun getProductsAdmin(@Header("Authorization") token: String): List<RemoteProductDto>
 
     @POST("products")
