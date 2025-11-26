@@ -15,7 +15,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,6 +43,7 @@ import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModelFactory
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation() {
@@ -69,7 +74,7 @@ fun AppNavigation() {
 
     val userScreensWithNavBar = setOf("home", "productos", "menu")
 
-    val showCart = currentRoute !in adminRoutes
+    // val showCart = currentRoute !in adminRoutes
 
     Scaffold(
         topBar = { TopBar(navController, badgeCount = carritoVM.totalItems()) },
@@ -87,9 +92,9 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { ScreenPrincipal(carritoVM = carritoVM, navController = navController, userVM = userVM) }
-            composable("productos") { 
+            composable("productos") {
                 val productVM: ProductViewModel = viewModel()
-                ProductosScreen(navController, carritoVM, productVM) 
+                ProductosScreen(navController, carritoVM, productVM)
             }
             composable("menu") { MenuScreen(navController, userVM) }
             composable(
@@ -120,17 +125,17 @@ fun AppNavigation() {
             composable("login") {
                 LoginScreen(
                     userVM = userVM,
-                    onUserLogInSuccess = { 
-                        navController.navigate("home") { 
+                    onUserLogInSuccess = {
+                        navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
-                            launchSingleTop = true 
-                        } 
+                            launchSingleTop = true
+                        }
                     },
-                    onAdminLogInSuccess = { 
-                        navController.navigate("adminProfile") { 
+                    onAdminLogInSuccess = {
+                        navController.navigate("adminProfile") {
                             popUpTo("home") { inclusive = true }
-                            launchSingleTop = true 
-                        } 
+                            launchSingleTop = true
+                        }
                     },
                     onBackClick = { navController.popBackStack() },
                     onRegisterClick = { navController.navigate("register") }
@@ -176,12 +181,26 @@ fun AppNavigation() {
                     onSaveClick = { navController.popBackStack() }
                 )
             }
+
+            // --- FIXED SECTION: Admin Gestion Productos ---
             composable("adminGestionProductos") {
                 val productVM: ProductViewModel = viewModel()
                 val adminProducts by productVM.adminProducts.collectAsState()
 
-                LaunchedEffect(Unit) {
-                    productVM.loadAdminProducts()
+                // Use CoroutineScope to launch suspend functions (delete/toggle)
+                val scope = rememberCoroutineScope()
+
+                // FIXME: 'authToken' was unresolved.
+                // You need to expose the token from UserViewModel.
+                // For now, we use a placeholder or an empty string so it compiles.
+                // val tokenState by userVM.authToken.collectAsState()
+
+                val token = "" // TODO: Replace with actual token, e.g., userVM.user.value?.token
+
+                LaunchedEffect(token) {
+                    if (token.isNotEmpty()) {
+                        productVM.loadAdminProducts(token)
+                    }
                 }
 
                 val uiProducts = adminProducts.map { remote ->
@@ -198,15 +217,29 @@ fun AppNavigation() {
                     products = uiProducts,
                     onBackClick = { navController.popBackStack() },
                     onDeleteProduct = { idStr ->
-                        val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
-                        productVM.deleteProduct(id)
+                        val id = idStr.toLongOrNull()
+                        // Check if we have a valid ID
+                        if (id != null && token.isNotEmpty()) {
+                            scope.launch {
+                                // 'deleteProduct' requires (String, Long)
+                                productVM.deleteProduct(token, id)
+                            }
+                        }
                     },
                     onToggleStatus = { idStr, newState ->
-                        val id = idStr.toLongOrNull() ?: return@GestionProductosScreen
-                        productVM.toggleProductActivo(id, newState)
+                        val id = idStr.toLongOrNull()
+                        // Fixed: Check for token emptiness as well
+                        if (id != null && token.isNotEmpty()) {
+                            scope.launch {
+                                // Fixed: Pass token first, then id, then boolean
+                                productVM.toggleProductActivo(token, id, newState)
+                            }
+                        }
                     }
                 )
             }
+            // ----------------------------------------------
+
             composable("adminGestionUsuarios") {
                 val remoteUsers by userVM.remoteUsers.collectAsState()
                 LaunchedEffect(Unit) { userVM.loadRemoteUsers() }

@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
-class UserViewModel(private val repository: UserRepository): ViewModel() {
-
+    // FIXED: Changed from Firebase User to local data.local.User
     private val _loginState = MutableStateFlow<User?>(null)
     val loginState: StateFlow<User?> get() = _loginState
 
@@ -24,23 +24,24 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
     private val _registerState = MutableStateFlow(false)
     val registerState: StateFlow<Boolean> get() = _registerState
 
+    // FIXED: Changed from Firebase User to local data.local.User
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users: StateFlow<List<User>> get() = _users
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> get() = _error
+    private val _error = MutableStateFlow("")
+    val error: StateFlow<String> = _error
 
     private val _adminUsers = MutableStateFlow<List<RemoteUserDto>>(emptyList())
     val adminUsers: StateFlow<List<RemoteUserDto>> get() = _adminUsers
 
     private val _remoteUsers = MutableStateFlow<List<RemoteUserDto>>(emptyList())
-    val remoteUsers: StateFlow<List<RemoteUserDto>> get() = _remoteUsers
+    val remoteUsers: StateFlow<List<RemoteUserDto>> = _remoteUsers
 
     private val _isRemoteLoading = MutableStateFlow(false)
-    val isRemoteLoading: StateFlow<Boolean> get() = _isRemoteLoading
+    val isRemoteLoading: StateFlow<Boolean> = _isRemoteLoading
 
     private val _remoteToken = MutableStateFlow<String?>(null)
-    val remoteToken: StateFlow<String?> get() = _remoteToken
+    val remoteToken: StateFlow<String?> = _remoteToken
 
     init {
         loadUsers()
@@ -52,9 +53,10 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
         }
     }
 
+    // FIXED: Parameter type changed to User
     fun register(user: User) {
         viewModelScope.launch {
-            _error.value = null
+            _error.value = ""
             _registerState.value = false
 
             // Validación local
@@ -93,7 +95,7 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            _error.value = null
+            _error.value = ""
             _remoteLoginState.value = null
 
             try {
@@ -101,6 +103,10 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
                 val response = repository.loginRemote(email, password)
                 _remoteLoginState.value = response
 
+                // IMPORTANT: Save the token here so other functions can use it
+                _remoteToken.value = response.token
+
+                // FIXED: Creating a local User object from the response
                 val remoteUser = User(
                     id = 0,
                     email = response.user.email,
@@ -122,6 +128,7 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
         }
     }
 
+    // FIXED: Parameter type changed to User
     fun deleteUser(user: User) {
         viewModelScope.launch {
             repository.deleteUser(user)
@@ -132,16 +139,22 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
     fun logout() {
         _loginState.value = null
         _remoteLoginState.value = null
+        _remoteToken.value = null
     }
+
+    // This function seems redundant if login() handles remote login,
+    // but keeping it consistent with your existing code structure.
     fun loginRemote(email: String, password: String) {
         viewModelScope.launch {
             try {
                 _isRemoteLoading.value = true
                 val response = repository.loginRemote(email, password)
+
+                // guardamos el token para usarlo después
                 _remoteToken.value = response.token
-                // aquí decides si navegas a admin o user según response.user.rol
+
             } catch (e: Exception) {
-                _error.value = "Error remoto: ${e.message}"
+                _error.value = "Error al iniciar sesión remoto: ${e.message}"
             } finally {
                 _isRemoteLoading.value = false
             }
@@ -151,9 +164,9 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
     // Cargar usuarios del backend (para GestionUsuariosScreen)
     fun loadRemoteUsers() {
         viewModelScope.launch {
+            val token = _remoteToken.value ?: return@launch   // si no hay token, no hacemos nada
             try {
                 _isRemoteLoading.value = true
-                val token = _remoteToken.value
                 _remoteUsers.value = repository.getRemoteUsers(token)
             } catch (e: Exception) {
                 _error.value = "Error al cargar usuarios remotos: ${e.message}"
@@ -173,6 +186,7 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
         rol: String? = null
     ) {
         viewModelScope.launch {
+            val token = _remoteToken.value ?: return@launch
             try {
                 val request = UpdateUserRequest(
                     nombre = nombre,
@@ -181,7 +195,7 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
                     password = password,
                     rol = rol
                 )
-                val updated = repository.updateRemoteUser(id, request)
+                val updated = repository.updateRemoteUser(token, id, request)
 
                 _remoteUsers.value = _remoteUsers.value.map {
                     if (it.id == id) updated else it
@@ -192,11 +206,11 @@ class UserViewModel(private val repository: UserRepository): ViewModel() {
         }
     }
 
-    // Eliminar un usuario
     fun deleteRemoteUser(id: Long) {
         viewModelScope.launch {
+            val token = _remoteToken.value ?: return@launch
             try {
-                repository.deleteRemoteUser(id)
+                repository.deleteRemoteUser(token, id)
                 _remoteUsers.value = _remoteUsers.value.filterNot { it.id == id }
             } catch (e: Exception) {
                 _error.value = "Error al eliminar usuario: ${e.message}"

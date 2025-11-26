@@ -1,5 +1,6 @@
 package com.example.milsaboresmovilesv2.data.repository
 
+import androidx.compose.runtime.mutableStateOf
 import com.example.milsaboresmovilesv2.data.local.User
 import com.example.milsaboresmovilesv2.data.local.UserDao
 import com.example.milsaboresmovilesv2.data.remote.RemoteUserDto
@@ -43,6 +44,7 @@ class UserRepository(
         return api.login(request)
     }
 
+    // REGISTRO REMOTO
     suspend fun registerRemote(
         email: String,
         nombre: String,
@@ -50,7 +52,7 @@ class UserRepository(
         fechaNacimiento: String,
         password: String,
         codigoPromo: String?
-    ): UserDto{
+    ): UserDto {
         return api.register(
             RegisterRequest(
                 email = email,
@@ -63,24 +65,25 @@ class UserRepository(
         )
     }
 
-    //LISTAR USUARIOS PARA ADMIN
-    suspend fun getRemoteUsers(token: String? = null): List<RemoteUserDto>{
-        return api.getUsers(token?.let { "Bearer $it" })
+    // LISTAR USUARIOS (ADMIN)
+    suspend fun getRemoteUsers(token: String): List<RemoteUserDto> {
+        return api.getUsers("Bearer $token")
     }
 
-    //ACTUALIZAR USUARIO
-    suspend fun updateRemoteUser(id: Long, request: UpdateUserRequest): RemoteUserDto {
-        return api.updateUser(id, request)
+    // ACTUALIZAR USUARIO (ADMIN)
+    suspend fun updateRemoteUser(
+        token: String,
+        id: Long,
+        request: UpdateUserRequest
+    ): RemoteUserDto {
+        return api.updateUser("Bearer $token", id, request)
     }
 
-
-    //ELIMINAR USUARIO
-    suspend fun deleteRemoteUser(id: Long) {
-        api.deleteUser(id)
+    // ELIMINAR USUARIO (ADMIN)
+    suspend fun deleteRemoteUser(token: String, id: Long) {
+        api.deleteUser("Bearer $token", id)
     }
-
-
-
 }
+
 
 

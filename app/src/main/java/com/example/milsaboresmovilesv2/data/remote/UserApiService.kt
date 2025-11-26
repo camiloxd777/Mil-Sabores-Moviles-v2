@@ -34,28 +34,31 @@ data class UpdateUserRequest(
 
 
 interface UserApiService {
+
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
     @POST("users/register")
     suspend fun register(@Body request: RegisterRequest): UserDto
 
-    @GET("users")
+    // LISTAR USUARIOS (panel admin)
+    @GET("admin/users")
     suspend fun getUsers(
-        @Header("Authorization") token: String? = null
+        @Header("Authorization") authHeader: String
     ): List<RemoteUserDto>
 
-    @GET("users")
-    suspend fun getUsers(): List<RemoteUserDto>
-
-    @PUT("users/{id}")
+    // ACTUALIZAR USUARIO (panel admin)
+    @PUT("admin/users/{id}")
     suspend fun updateUser(
+        @Header("Authorization") authHeader: String,
         @Path("id") id: Long,
         @Body request: UpdateUserRequest
     ): RemoteUserDto
 
-    @DELETE("users/{id}")
+    // ELIMINAR USUARIO (panel admin)
+    @DELETE("admin/users/{id}")
     suspend fun deleteUser(
+        @Header("Authorization") authHeader: String,
         @Path("id") id: Long
     )
 }

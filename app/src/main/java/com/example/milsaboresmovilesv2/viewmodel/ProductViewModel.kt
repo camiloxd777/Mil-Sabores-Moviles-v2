@@ -22,38 +22,29 @@ class ProductViewModel(
     private val _error = MutableStateFlow("")
     val error: StateFlow<String> = _error
 
-    fun loadProducts() {
+    // Fixed: Added 'token' parameter because Repository requires it
+    fun loadProducts(token: String = "") {
         viewModelScope.launch {
             try {
-                _products.value = repository.getRemoteProducts()
+                // Fixed: Passed token to repository
+                _products.value = repository.getRemoteProducts(token)
             } catch (e: Exception) {
                 _error.value = "Error cargando productos: ${e.message}"
             }
         }
     }
 
-    fun loadAdminProducts() {
-        viewModelScope.launch {
-            try {
-                _adminProducts.value = repository.getRemoteProductsAdmin()
-            } catch (e: Exception) {
-                _error.value = "Error cargando productos admin: ${e.message}"
-            }
-        }
+    suspend fun loadAdminProducts(token: String) {
+        _adminProducts.value = repository.getRemoteProductsAdmin(token)
     }
 
-    fun deleteProduct(id: Long) {
-        viewModelScope.launch {
-            try {
-                repository.deleteRemoteProduct(id)
-                _adminProducts.value = _adminProducts.value.filterNot { it.id == id }
-            } catch (e: Exception) {
-                _error.value = "Error eliminando producto: ${e.message}"
-            }
-        }
+    suspend fun deleteProduct(token: String, id: Long) {
+        repository.deleteRemoteProduct(token, id)
+        loadAdminProducts(token)
     }
 
-    fun toggleProductActivo(id: Long, nuevoActivo: Boolean) {
+    // Fixed: Added 'token' parameter
+    fun toggleProductActivo(token: String, id: Long, nuevoActivo: Boolean) {
         viewModelScope.launch {
             try {
                 val product = _adminProducts.value.firstOrNull { it.id == id } ?: return@launch
@@ -64,7 +55,9 @@ class ProductViewModel(
                     categoria = product.categoria,
                     activo = nuevoActivo
                 )
-                val updated = repository.updateRemoteProduct(id, req)
+                // Fixed: Passed token as first argument
+                val updated = repository.updateRemoteProduct(token, id, req)
+
                 _adminProducts.value = _adminProducts.value.map {
                     if (it.id == id) updated else it
                 }
@@ -74,10 +67,12 @@ class ProductViewModel(
         }
     }
 
-    fun addProduct(req: RemoteProductRequest) {
+    // Fixed: Added 'token' parameter
+    fun addProduct(token: String, req: RemoteProductRequest) {
         viewModelScope.launch {
             try {
-                val created = repository.addRemoteProduct(req)
+                // Fixed: Passed token as first argument
+                val created = repository.addRemoteProduct(token, req)
                 _adminProducts.value = _adminProducts.value + created
             } catch (e: Exception) {
                 _error.value = "Error agregando producto: ${e.message}"

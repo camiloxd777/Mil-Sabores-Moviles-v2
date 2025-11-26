@@ -5,6 +5,7 @@ import com.example.milsaboresmovilesv2.model.RemoteProductRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -14,22 +15,31 @@ import retrofit2.http.Path
 interface ProductApiService {
 
     @GET("products")
-    suspend fun getProducts(): List<RemoteProductDto>
+    suspend fun getProducts(
+        @Header("Authorization") token: String
+    ): List<RemoteProductDto>
 
     @GET("products/admin")
-    suspend fun getProductsAdmin(): List<RemoteProductDto>
+    suspend fun getProductsAdmin(
+        @Header("Authorization") token: String
+    ): List<RemoteProductDto>
 
     @POST("products")
-    suspend fun addProduct(@Body request: RemoteProductRequest): RemoteProductDto
+    suspend fun addProduct(
+        @Header("Authorization") token: String,
+        @Body request: RemoteProductRequest
+    ): RemoteProductDto
 
     @PUT("products/{id}")
     suspend fun updateProduct(
+        @Header("Authorization") token: String,
         @Path("id") id: Long,
         @Body request: RemoteProductRequest
     ): RemoteProductDto
 
     @DELETE("products/{id}")
     suspend fun deleteProduct(
+        @Header("Authorization") token: String,
         @Path("id") id: Long
     )
 }

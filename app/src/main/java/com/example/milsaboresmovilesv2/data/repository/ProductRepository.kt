@@ -8,18 +8,18 @@ import com.example.milsaboresmovilesv2.model.RemoteProductRequest
 class ProductRepository(
     private val api: ProductApiService = RetrofitInstance.productApi
 ) {
-    suspend fun getRemoteProducts(): List<RemoteProductDto> =
-        api.getProducts()
+    suspend fun getRemoteProducts(token: String): List<RemoteProductDto> =
+        api.getProducts("Bearer $token")
 
-    suspend fun getRemoteProductsAdmin(): List<RemoteProductDto> =
-        api.getProductsAdmin()
+    suspend fun getRemoteProductsAdmin(token: String): List<RemoteProductDto> =
+        api.getProductsAdmin("Bearer $token")
 
-    suspend fun addRemoteProduct(req: RemoteProductRequest): RemoteProductDto =
-        api.addProduct(req)
+    suspend fun addRemoteProduct(token: String, req: RemoteProductRequest): RemoteProductDto =
+        api.addProduct("Bearer $token", req)
 
-    suspend fun updateRemoteProduct(id: Long, req: RemoteProductRequest): RemoteProductDto =
-        api.updateProduct(id, req)
+    suspend fun updateRemoteProduct(token: String, id: Long, req: RemoteProductRequest): RemoteProductDto =
+        api.updateProduct("Bearer $token", id, req)
 
-    suspend fun deleteRemoteProduct(id: Long) =
-        api.deleteProduct(id)
+    suspend fun deleteRemoteProduct(token: String, id: Long) =
+        api.deleteProduct("Bearer $token", id)
 }
