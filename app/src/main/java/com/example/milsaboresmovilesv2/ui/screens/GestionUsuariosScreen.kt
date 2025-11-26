@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,10 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.milsaboresmovilesv2.viewmodel.UserViewModel
 
 @Composable
-
 fun GestionUsuariosScreen(
     usuarios: List<Usuario>,
     onBackClick: () -> Unit = {},
@@ -42,7 +41,6 @@ fun GestionUsuariosScreen(
         // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
@@ -56,38 +54,27 @@ fun GestionUsuariosScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f)
             )
-
+            Spacer(modifier = Modifier.width(48.dp)) // For balance
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Barra de búsqueda
+        // Search and filters
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Buscar usuarios por nombre o email...") },
-            leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = "Buscar")
-            },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFF8F8F8),
-                focusedContainerColor = Color(0xFFF8F8F8),
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color(0xFFE67E22)
             ),
             shape = RoundedCornerShape(12.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        // Filtros de usuarios
-        Text(
-            text = "Filtrar por:",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF666666)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -97,461 +84,162 @@ fun GestionUsuariosScreen(
                     selected = selectedFilter == filter,
                     onClick = { selectedFilter = filter },
                     label = { Text(filter) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFE67E22),
-                        selectedLabelColor = Color.White
-                    ),
+                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFFE67E22), selectedLabelColor = Color.White),
                     modifier = Modifier.height(32.dp)
                 )
-
             }
-
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Estadísticas rápidas
+        // Quick Stats
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             UserStatCard(
+                modifier = Modifier.weight(1f),
                 titulo = "Total",
-                valor = "1.245",
+                valor = usuarios.size.toString(),
                 color = Color(0xFF3498DB)
             )
             UserStatCard(
+                modifier = Modifier.weight(1f),
                 titulo = "Activos",
-                valor = "1.156",
+                valor = usuarios.count { it.activo }.toString(),
                 color = Color(0xFF27AE60)
             )
             UserStatCard(
-                titulo = "Nuevos Mes",
-                valor = "89",
-                color = Color(0xFF9B59B6)
-            )
-            UserStatCard(
-                titulo = "Administradores",
-                valor = "3",
+                modifier = Modifier.weight(1f),
+                titulo = "Admins",
+                valor = usuarios.count { it.rol == "Administrador" }.toString(),
                 color = Color(0xFFE67E22)
             )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-        // Resumen de actividad
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Actividad del Mes",
-                        fontSize = 14.sp,
-                        color = Color(0xFF666666)
-                    )
-                    Text(
-                        text = "+89 nuevos usuarios",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2C3E50)
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Crecimiento",
-                        fontSize = 14.sp,
-                        color = Color(0xFF666666)
-                    )
-                    Text(
-                        text = "+7.7%",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF27AE60)
-                    )
-                }
 
-            }
-
-        }
-
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-
-        // Lista de usuarios
+        // User List
         Text(
-
             text = "Usuarios Registrados",
-
             fontSize = 18.sp,
-
             fontWeight = FontWeight.Bold,
-
             color = Color(0xFF8B4513)
-
         )
-
-
-
         Spacer(modifier = Modifier.height(12.dp))
 
-
-
         LazyColumn(
-
             modifier = Modifier.fillMaxWidth(),
-
             verticalArrangement = Arrangement.spacedBy(12.dp)
-
         ) {
-
             items(usuarios) { usuario ->
-
                 UsuarioManagementItem(
-
                     usuario = usuario,
-
                     onViewDetails = { onViewUserDetails(usuario.id) },
-
                     onEdit = { onEditUser(usuario.id) },
-
                     onToggleStatus = { activo -> onToggleUserStatus(usuario.id, activo) },
-
-                    onDelete = {onDeleteUser(usuario.id)}
-
+                    onDelete = { onDeleteUser(usuario.id) }
                 )
-
             }
-
         }
-
     }
-
 }
 
-
-
 @Composable
-
 fun UserStatCard(
-
+    modifier: Modifier = Modifier,
     titulo: String,
-
     valor: String,
-
     color: Color
-
 ) {
-
     Card(
-
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White),
-
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-
         Column(
-
-            modifier = Modifier.padding(12.dp),
-
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
-
-            Text(
-
-                text = valor,
-
-                fontSize = 18.sp,
-
-                fontWeight = FontWeight.Bold,
-
-                color = color
-
-            )
-
-            Text(
-
-                text = titulo,
-
-                fontSize = 10.sp,
-
-                color = Color(0xFF666666),
-
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-
-            )
-
+            Text(text = valor, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
+            Text(text = titulo, fontSize = 10.sp, color = Color.Gray, textAlign = TextAlign.Center)
         }
-
     }
-
 }
 
-
-
 @Composable
-
 fun UsuarioManagementItem(
-
     usuario: Usuario,
-
     onViewDetails: () -> Unit,
-
     onEdit: () -> Unit,
-
     onToggleStatus: (Boolean) -> Unit,
-
     onDelete: () -> Unit
-
 ) {
-
     Card(
-
         modifier = Modifier.fillMaxWidth(),
-
         colors = CardDefaults.cardColors(containerColor = Color.White),
-
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-
         shape = RoundedCornerShape(12.dp)
-
     ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            if (usuario.rol == "Administrador") Color(0xFFE67E22) else Color(0xFF3498DB),
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = usuario.nombre.take(1).uppercase(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
 
-        Row(
+                Spacer(modifier = Modifier.width(16.dp))
 
-            modifier = Modifier
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = usuario.nombre, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text(text = usuario.email, fontSize = 14.sp, color = Color.Gray)
+                }
 
-                .fillMaxWidth()
-
-                .padding(16.dp),
-
-            verticalAlignment = Alignment.CenterVertically
-
-        ) {
-
-            // Avatar del usuario
-
-            Box(
-
-                modifier = Modifier
-
-                    .size(50.dp)
-
-                    .background(
-
-                        if (usuario.rol == "Administrador") Color(0xFFE67E22) else Color(0xFF3498DB),
-
-                        RoundedCornerShape(25.dp)
-
-                    ),
-
-                contentAlignment = Alignment.Center
-
-            ) {
-
-                Text(
-
-                    text = usuario.nombre.substring(0, 1).uppercase(),
-
-                    color = Color.White,
-
-                    fontSize = 16.sp,
-
-                    fontWeight = FontWeight.Bold
-
-                )
-
+                Box(
+                    modifier = Modifier
+                        .background(
+                            if (usuario.rol == "Administrador") Color(0xFFFFEAA7) else Color(0xFFD6EAF8),
+                            RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(text = usuario.rol, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (usuario.rol == "Administrador") Color(0xFFE67E22) else Color(0xFF3498DB))
+                }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
 
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-
-
-            // Información del usuario
-            Column(
-
-                modifier = Modifier.weight(1f)
-
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Row(
-
-                    verticalAlignment = Alignment.CenterVertically
-
-                ) {
-
-                    Text(
-
-                        text = usuario.nombre,
-
-                        fontSize = 16.sp,
-
-                        fontWeight = FontWeight.Medium,
-
-                        color = Color(0xFF333333)
-
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Badge de rol
-
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-
                         modifier = Modifier
-
-                            .background(
-
-                                if (usuario.rol == "Administrador") Color(0xFFFFEAA7) else Color(0xFFD6EAF8),
-
-                                RoundedCornerShape(4.dp)
-
-                            )
-
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-
-                    ) {
-
-                        Text(
-
-                            text = usuario.rol,
-
-                            fontSize = 10.sp,
-
-                            fontWeight = FontWeight.Bold,
-
-                            color = if (usuario.rol == "Administrador") Color(0xFFE67E22) else Color(0xFF3498DB)
-
-                        )
-
-                    }
-
+                            .size(8.dp)
+                            .background(if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C), CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = if (usuario.activo) "Activo" else "Inactivo", fontSize = 12.sp, color = if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C))
                 }
 
-
-
-                Text(
-
-                    text = usuario.email,
-
-                    fontSize = 14.sp,
-
-                    color = Color(0xFF666666)
-
-                )
-
-
-
-                Row(
-
-                    modifier = Modifier.fillMaxWidth(),
-
-                    horizontalArrangement = Arrangement.SpaceBetween
-
-                ) {
-
-                    Text(
-
-                        text = "Registrado: ${usuario.fechaRegistro}",
-
-                        fontSize = 12.sp,
-
-                        color = Color(0xFF888888)
-
-                    )
-
-
-
-                    // Estado del usuario
-
-                    Row(
-
-                        verticalAlignment = Alignment.CenterVertically
-
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .background(
-                                    if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C),
-                                    RoundedCornerShape(4.dp)
-                                )
-                        )
-
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                        Text(
-                            text = if (usuario.activo) "Activo" else "Inactivo",
-                            fontSize = 12.sp,
-                            color = if (usuario.activo) Color(0xFF27AE60) else Color(0xFFE74C3C)
-                        )
+                Row {
+                    TextButton(onClick = onViewDetails) { Text("Detalles") }
+                    IconButton(onClick = { onToggleStatus(!usuario.activo) }) {
+                        Icon(if (usuario.activo) Icons.Default.PersonOff else Icons.Default.Person, contentDescription = "Toggle Status")
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Acciones
-            Column {
-                // Botón de estado
-                IconButton(
-                    onClick = { onToggleStatus(!usuario.activo) },
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        if (usuario.activo) Icons.Default.PersonOff else Icons.Default.Person,
-                        contentDescription = if (usuario.activo) "Desactivar" else "Activar",
-                        tint = if (usuario.activo) Color(0xFFE74C3C) else Color(0xFF27AE60)
-                    )
-                }
-
-
-
-                // Botón editar
-
-                IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFF3498DB)
-                    )
-                }
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint = Color(0xFFE74C3C)
-                    )
-                }
-            }
-        }
-
-        // Footer
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(onClick = onViewDetails) {
-                Text("Ver Detalles")
             }
         }
     }
@@ -568,77 +256,18 @@ data class Usuario(
     val ultimoAcceso: String
 )
 
-
-
-
 fun getUsuariosEjemplo(): List<Usuario> {
     return listOf(
-        Usuario(
-            id = "1",
-            nombre = "María González",
-            email = "maria.gonzalez@email.com",
-            rol = "Administrador",
-            activo = true,
-            fechaRegistro = "15/03/2024",
-            telefono = "+56 9 1234 5678",
-            ultimoAcceso = "Hoy, 14:30"
-        ),
-
-        Usuario(
-            id = "2",
-            nombre = "Carlos López",
-            email = "carlos.lopez@email.com",
-            rol = "Cliente",
-            activo = true,
-            fechaRegistro = "20/02/2024",
-            telefono = "+56 9 8765 4321",
-            ultimoAcceso = "Ayer, 18:45"
-        ),
-
-        Usuario(
-            id = "3",
-            nombre = "Ana Martínez",
-            email = "ana.martinez@email.com",
-            rol = "Cliente",
-            activo = false,
-            fechaRegistro = "10/01/2024",
-            telefono = "+56 9 5555 6666",
-            ultimoAcceso = "05/12/2024"
-
-        ),
-
-        Usuario(
-            id = "4",
-            nombre = "Pedro Sánchez",
-            email = "pedro.sanchez@email.com",
-            rol = "Cliente",
-            activo = true,
-            fechaRegistro = "05/04/2024",
-            telefono = "+56 9 7777 8888",
-            ultimoAcceso = "Hoy, 09:15"
-        ),
-
-        Usuario(
-            id = "5",
-            nombre = "Laura Rodríguez",
-            email = "laura.rodriguez@email.com",
-            rol = "Administrador",
-            activo = true,
-            fechaRegistro = "12/03/2024",
-            telefono = "+56 9 9999 0000",
-            ultimoAcceso = "Hoy, 11:20"
-
-        )
-
+        Usuario("1", "María González", "maria.gonzalez@email.com", "Administrador", true, "15/03/2024", "+56912345678", "Hoy, 14:30"),
+        Usuario("2", "Carlos López", "carlos.lopez@email.com", "Cliente", true, "20/02/2024", "+56987654321", "Ayer, 18:45"),
+        Usuario("3", "Ana Martínez", "ana.martinez@email.com", "Cliente", false, "10/01/2024", "+56955556666", "05/12/2024"),
+        Usuario("4", "Pedro Sánchez", "pedro.sanchez@email.com", "Cliente", true, "05/04/2024", "+56977778888", "Hoy, 09:15"),
+        Usuario("5", "Laura Rodríguez", "laura.rodriguez@email.com", "Administrador", true, "12/03/2024", "+56999990000", "Hoy, 11:20")
     )
-
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
 fun GestionUsuariosScreenPreview() {
     GestionUsuariosScreen(usuarios = getUsuariosEjemplo())
-
 }

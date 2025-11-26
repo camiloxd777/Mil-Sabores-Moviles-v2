@@ -1,5 +1,7 @@
 package com.example.milsaboresmovilesv2.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -9,17 +11,15 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -74,7 +74,7 @@ fun AppNavigation() {
 
     val userScreensWithNavBar = setOf("home", "productos", "menu")
 
-    // val showCart = currentRoute !in adminRoutes
+    val showCart = currentRoute !in adminRoutes
 
     Scaffold(
         topBar = { TopBar(navController, badgeCount = carritoVM.totalItems()) },
@@ -92,9 +92,9 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { ScreenPrincipal(carritoVM = carritoVM, navController = navController, userVM = userVM) }
-            composable("productos") {
+            composable("productos") { 
                 val productVM: ProductViewModel = viewModel()
-                ProductosScreen(navController, carritoVM, productVM)
+                ProductosScreen(navController, carritoVM, productVM) 
             }
             composable("menu") { MenuScreen(navController, userVM) }
             composable(
@@ -125,17 +125,17 @@ fun AppNavigation() {
             composable("login") {
                 LoginScreen(
                     userVM = userVM,
-                    onUserLogInSuccess = {
-                        navController.navigate("home") {
+                    onUserLogInSuccess = { 
+                        navController.navigate("home") { 
                             popUpTo("home") { inclusive = true }
-                            launchSingleTop = true
-                        }
+                            launchSingleTop = true 
+                        } 
                     },
-                    onAdminLogInSuccess = {
-                        navController.navigate("adminProfile") {
+                    onAdminLogInSuccess = { 
+                        navController.navigate("adminProfile") { 
                             popUpTo("home") { inclusive = true }
-                            launchSingleTop = true
-                        }
+                            launchSingleTop = true 
+                        } 
                     },
                     onBackClick = { navController.popBackStack() },
                     onRegisterClick = { navController.navigate("register") }
@@ -181,68 +181,67 @@ fun AppNavigation() {
                     onSaveClick = { navController.popBackStack() }
                 )
             }
-
-            // --- FIXED SECTION: Admin Gestion Productos ---
             composable("adminGestionProductos") {
                 val productVM: ProductViewModel = viewModel()
                 val adminProducts by productVM.adminProducts.collectAsState()
-
-                // Use CoroutineScope to launch suspend functions (delete/toggle)
+                val isLoading by productVM.isLoading.collectAsState()
+                val error by productVM.error.collectAsState()
                 val scope = rememberCoroutineScope()
-
-                // FIXME: 'authToken' was unresolved.
-                // You need to expose the token from UserViewModel.
-                // For now, we use a placeholder or an empty string so it compiles.
-                // val tokenState by userVM.authToken.collectAsState()
-
-                val token = "" // TODO: Replace with actual token, e.g., userVM.user.value?.token
+                val token by userVM.remoteToken.collectAsState()
 
                 LaunchedEffect(token) {
-                    if (token.isNotEmpty()) {
-                        productVM.loadAdminProducts(token)
-                    }
+                    token?.let { productVM.loadAdminProducts(it) }
                 }
 
-                val uiProducts = adminProducts.map { remote ->
-                    Product(
-                        id = remote.id.toString(),
-                        name = remote.nombre,
-                        category = remote.categoria,
-                        price = "$${remote.precio}",
-                        inStock = remote.activo
-                    )
-                }
-
-                GestionProductosScreen(
-                    products = uiProducts,
-                    onBackClick = { navController.popBackStack() },
-                    onDeleteProduct = { idStr ->
-                        val id = idStr.toLongOrNull()
-                        // Check if we have a valid ID
-                        if (id != null && token.isNotEmpty()) {
-                            scope.launch {
-                                // 'deleteProduct' requires (String, Long)
-                                productVM.deleteProduct(token, id)
-                            }
-                        }
-                    },
-                    onToggleStatus = { idStr, newState ->
-                        val id = idStr.toLongOrNull()
-                        // Fixed: Check for token emptiness as well
-                        if (id != null && token.isNotEmpty()) {
-                            scope.launch {
-                                // Fixed: Pass token first, then id, then boolean
-                                productVM.toggleProductActivo(token, id, newState)
-                            }
+                when {
+                    isLoading -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
                         }
                     }
-                )
+                    error.isNotEmpty() -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(error, color = Color.Red)
+                        }
+                    }
+                    else -> {
+                        val uiProducts = adminProducts.map { remote ->
+                            Product(
+                                id = remote.id.toString(),
+                                name = remote.nombre,
+                                category = remote.categoria,
+                                price = "$${remote.precio}",
+                                inStock = remote.activo
+                            )
+                        }
+                        GestionProductosScreen(
+                            products = uiProducts,
+                            onBackClick = { navController.popBackStack() },
+                            onDeleteProduct = { idStr ->
+                                token?.let {
+                                    scope.launch {
+                                        productVM.deleteProduct(it, idStr.toLong())
+                                    }
+                                }
+                            },
+                            onToggleStatus = { idStr, newState ->
+                                token?.let {
+                                    scope.launch {
+                                        productVM.toggleProductActivo(it, idStr.toLong(), newState)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
             }
-            // ----------------------------------------------
-
             composable("adminGestionUsuarios") {
                 val remoteUsers by userVM.remoteUsers.collectAsState()
-                LaunchedEffect(Unit) { userVM.loadRemoteUsers() }
+                val token by userVM.remoteToken.collectAsState()
+
+                LaunchedEffect(token) {
+                    token?.let { userVM.loadRemoteUsers() }
+                }
 
                 GestionUsuariosScreen(
                     usuarios = remoteUsers.map { remote ->
@@ -258,7 +257,9 @@ fun AppNavigation() {
                         )
                     },
                     onBackClick = { navController.popBackStack() },
-                    onDeleteUser = { id -> userVM.deleteRemoteUser(id.toLong()) }
+                    onDeleteUser = { id -> 
+                        token?.let { userVM.deleteRemoteUser(id.toLong()) }
+                    }
                 )
             }
             composable("adminEstadisticas") {
@@ -310,7 +311,7 @@ fun AdminBottomNavBar(navController: NavHostController) {
         NavItem("adminEstadisticas", Icons.Default.BarChart, "Stats")
     )
 
-    NavigationBar(containerColor = Color(0xFF8B4513)) {
+    NavigationBar(containerColor = Color(0xFFFFEAC4)) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
@@ -328,7 +329,7 @@ fun AdminBottomNavBar(navController: NavHostController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White,
+                    selectedIconColor = Color.Gray,
                     unselectedIconColor = Color(0xFFD3C1B1),
                     selectedTextColor = Color.White,
                     unselectedTextColor = Color(0xFFD3C1B1),
