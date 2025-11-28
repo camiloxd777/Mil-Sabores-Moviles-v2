@@ -334,7 +334,7 @@ fun ProductManagementItem(
     }
 }
 
-// Data class corregida (sin imageRes aquí)
+
 data class Product(
     val id: String,
     val name: String,
