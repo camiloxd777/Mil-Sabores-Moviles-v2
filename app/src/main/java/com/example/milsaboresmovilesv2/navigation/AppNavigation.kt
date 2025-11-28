@@ -39,6 +39,7 @@ import com.example.milsaboresmovilesv2.ui.components.DetalleProductoScreen
 import com.example.milsaboresmovilesv2.ui.components.TopBar
 import com.example.milsaboresmovilesv2.ui.screens.*
 import com.example.milsaboresmovilesv2.ui.screens.admin.*
+import com.example.milsaboresmovilesv2.ui.utils.getProductImage
 import com.example.milsaboresmovilesv2.viewmodel.CarritoViewModel
 import com.example.milsaboresmovilesv2.viewmodel.ProductViewModel
 import com.example.milsaboresmovilesv2.viewmodel.UserViewModel

@@ -1,5 +1,6 @@
 package com.example.milsaboresmovilesv2.ui.screens.admin
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,13 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.milsaboresmovilesv2.ui.utils.getProductImage
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 
 @Composable
 fun GestionProductosScreen(
-    products: List<Product> = getSampleProducts(),
+    products: List<Product>,
     onBackClick: () -> Unit = {},
     onAddProduct: () -> Unit = {},
     onEditProduct: (String) -> Unit = {},
@@ -177,8 +180,11 @@ fun GestionProductosScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(filteredProducts) { product ->
+                val imageRes = getProductImage(product.name, product.category)
+
                 ProductManagementItem(
                     product = product,
+                    imageRes = imageRes, // 👈 IMPORTANTE: pasar la imagen
                     onEdit = { onEditProduct(product.id) },
                     onToggleStatus = { onToggleStatus(product.id, !product.inStock) },
                     onDelete = { onDeleteProduct(product.id) }
@@ -224,6 +230,7 @@ fun ProductStatCard(
 @Composable
 fun ProductManagementItem(
     product: Product,
+    imageRes: Int,
     onEdit: () -> Unit,
     onToggleStatus: () -> Unit,
     onDelete: () -> Unit
@@ -240,19 +247,14 @@ fun ProductManagementItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del producto (placeholder)
-            Box(
+            // Imagen del producto
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = product.name,
                 modifier = Modifier
-                    .size(60.dp)
-                    .background(Color(0xFFF8F4E8), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.Cake,
-                    contentDescription = "Producto",
-                    tint = Color(0xFFD35400)
-                )
-            }
+                    .size(80.dp)
+                    .padding(end = 8.dp)
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -332,7 +334,7 @@ fun ProductManagementItem(
     }
 }
 
-// Data classes
+// Data class corregida (sin imageRes aquí)
 data class Product(
     val id: String,
     val name: String,
@@ -341,8 +343,9 @@ data class Product(
     val inStock: Boolean
 )
 
+
 // Datos de ejemplo
-fun getSampleProducts(): List<Product> {
+/*fun getSampleProducts(): List<Product> {
     return listOf(
         Product("1", "Torta Chocolate", "Tortas", "$45.000", true),
         Product("2", "Torta Vainilla", "Tortas", "$40.000", true),
@@ -357,4 +360,4 @@ fun getSampleProducts(): List<Product> {
 @Composable
 fun GestionProductosScreenPreview() {
     GestionProductosScreen()
-}
+}*/

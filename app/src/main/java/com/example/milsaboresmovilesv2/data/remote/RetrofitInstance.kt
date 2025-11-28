@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
 
     // Para EMULADOR de Android Studio:
-    private const val BASE_URL = "http://100.27.234.180:8080/"
+    private const val BASE_URL = "http://98.92.50.15:8080/"
 
 
     private val client = OkHttpClient.Builder()
