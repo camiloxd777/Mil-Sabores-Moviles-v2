@@ -14,6 +14,7 @@ class ProductRepositoryTest {
 
     private val api: ProductApiService = mockk()
     private val repository = ProductRepository(api)
+    private val dummyToken = "test-token"
 
     @Test
     fun `getRemoteProducts returns list of products`() = runTest {
@@ -34,9 +35,9 @@ class ProductRepositoryTest {
         val request = RemoteProductRequest("Nuevo", "Descripción nueva", 1500, "Categoria 1",true)
         val expected = RemoteProductDto(100, "Nuevo", "Descripción nueva", 1500, "Categoria 1",true)
 
-        coEvery { api.addProduct(request) } returns expected
+        coEvery { api.addProduct("Bearer $dummyToken", request) } returns expected
 
-        val result = repository.addRemoteProduct(request)
+        val result = repository.addRemoteProduct(dummyToken, request)
 
         assertEquals(expected, result)
     }
@@ -45,10 +46,11 @@ class ProductRepositoryTest {
     fun `updateRemoteProduct returns updated product`() = runTest {
         val request = RemoteProductRequest("Actualizado", "Descripción actualizada", 2500, "Categoria 1",true)
         val expected = RemoteProductDto(55, "Actualizado", "Descripción actualizada", 2500,"Categoria 1", true)
+        val productId = 55L
 
-        coEvery { api.updateProduct(55, request) } returns expected
+        coEvery { api.updateProduct("Bearer $dummyToken", productId, request) } returns expected
 
-        val result = repository.updateRemoteProduct(55, request)
+        val result = repository.updateRemoteProduct(dummyToken, productId, request)
 
         assertEquals(expected, result)
     }

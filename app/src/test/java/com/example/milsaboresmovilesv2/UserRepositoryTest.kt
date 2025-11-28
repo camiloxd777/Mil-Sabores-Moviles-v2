@@ -26,6 +26,7 @@ class UserRepositoryTest {
     private val api: UserApiService = mockk()
 
     private val repository = UserRepository(userDao, api)
+    private val dummyToken = "dummy_token"
 
     // LOCAL (ROOM)
 
@@ -194,19 +195,19 @@ class UserRepositoryTest {
             rol = "USER"
         )
 
-        coEvery { api.updateUser(1, request) } returns updated
+        coEvery { api.updateUser(any(), eq(1L), eq(request)) } returns updated
 
-        val result = repository.updateRemoteUser(1, request)
+        val result = repository.updateRemoteUser(dummyToken, 1L, request)
 
         assertEquals(updated, result)
     }
 
     @Test
     fun `deleteRemoteUser calls API delete`() = runTest {
-        coEvery { api.deleteUser(5) } returns Unit
+        coEvery { api.deleteUser(any(), eq(5L)) } returns Unit
 
-        repository.deleteRemoteUser(5)
+        repository.deleteRemoteUser(dummyToken, 5L)
 
-        coVerify { api.deleteUser(5) }
+        coVerify { api.deleteUser(any(), eq(5L)) }
     }
 }

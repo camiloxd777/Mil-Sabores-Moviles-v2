@@ -145,7 +145,7 @@ fun EstadisticasScreen(
         // Resumen general
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F4FD)),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(

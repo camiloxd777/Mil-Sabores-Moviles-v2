@@ -419,4 +419,3 @@ fun getAdminOptions(): List<AdminOption> {
 fun AdminProfileScreenPreview() {
     AdminProfileScreen()
 }
-
