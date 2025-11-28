@@ -26,7 +26,7 @@ fun GestionPedidosScreen(
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("Todos") }
-    val filters = listOf("Todos", "Pendientes", "En Proceso", "Completado", "Cancelados")
+    val filters = listOf("Todos", "Pendientes", "En Proceso", "Completo")
 
     val filteredOrders = remember(searchText, selectedFilter) {
         getSampleOrders().filter { order ->
@@ -38,8 +38,7 @@ fun GestionPedidosScreen(
                 "Todos" -> true
                 "Pendientes" -> order.status.equals("Pendiente", ignoreCase = true)
                 "En Proceso" -> order.status.equals("En Proceso", ignoreCase = true)
-                "Completado" -> order.status.equals("Completado", ignoreCase = true)
-                "Cancelados" -> order.status.equals("Cancelado", ignoreCase = true)
+                "Completo" -> order.status.equals("Completo", ignoreCase = true)
                 else -> false
             }
             searchMatch && filterMatch
@@ -133,7 +132,7 @@ fun GestionPedidosScreen(
             )
             OrderStatCard(
                 modifier = Modifier.weight(1f),
-                title = "Completado",
+                title = "Completo",
                 value = "8",
                 color = Color(0xFF27AE60)
             )
@@ -404,7 +403,7 @@ fun OrderManagementItem(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        listOf("Pendiente", "En Proceso", "Completado", "Cancelado").forEach { status ->
+                        listOf("Pendiente", "En Proceso", "Completo").forEach { status ->
                             DropdownMenuItem(
                                 text = { Text(status) },
                                 onClick = {
@@ -425,7 +424,7 @@ fun getStatusColor(status: String): Color {
     return when (status.lowercase()) {
         "pendiente" -> Color(0xFFF39C12)
         "en proceso" -> Color(0xFF3498DB)
-        "completado" -> Color(0xFF27AE60)
+        "completo" -> Color(0xFF27AE60)
         "cancelado" -> Color(0xFFE74C3C)
         else -> Color(0xFF666666)
     }
@@ -435,7 +434,7 @@ fun getStatusBackgroundColor(status: String): Color {
     return when (status.lowercase()) {
         "pendiente" -> Color(0xFFFFF5E6)
         "en proceso" -> Color(0xFFE8F4FD)
-        "completado" -> Color(0xFFE8F6EF)
+        "completa" -> Color(0xFFE8F6EF)
         "cancelado" -> Color(0xFFFDEDEC)
         else -> Color(0xFFF8F8F8)
     }

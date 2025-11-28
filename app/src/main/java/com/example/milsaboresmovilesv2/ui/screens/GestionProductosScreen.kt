@@ -30,7 +30,6 @@ fun GestionProductosScreen(
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Todos") }
-    val categories = listOf("Todos", "Tortas", "Postres", "Sin Azúcar", "Especiales")
 
     val filteredProducts = remember(products, searchText, selectedCategory) {
         products.filter {
@@ -85,36 +84,6 @@ fun GestionProductosScreen(
             ),
             shape = RoundedCornerShape(12.dp)
         )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Filtros de categoría
-        Text(
-            text = "Categorías:",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF666666)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.forEach { category ->
-                FilterChip(
-                    selected = selectedCategory == category,
-                    onClick = { selectedCategory = category },
-                    label = { Text(category) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFE67E22),
-                        selectedLabelColor = Color.White
-                    ),
-                    modifier = Modifier.height(32.dp)
-                )
-            }
-        }
 
         Spacer(modifier = Modifier.height(20.dp))
 

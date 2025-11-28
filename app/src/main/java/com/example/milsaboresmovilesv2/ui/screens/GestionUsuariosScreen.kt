@@ -30,7 +30,7 @@ fun GestionUsuariosScreen(
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("Todos") }
-    val filters = listOf("Todos", "Activos", "Inactivos", "Administradores", "Clientes")
+    val filters = listOf("Todos", "Activos", "Inactivos")
 
     Column(
         modifier = Modifier
@@ -59,7 +59,7 @@ fun GestionUsuariosScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Search and filters
+        // Busqueda y filtros
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -92,7 +92,7 @@ fun GestionUsuariosScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Quick Stats
+        // Estadisticas
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -109,17 +109,11 @@ fun GestionUsuariosScreen(
                 valor = usuarios.count { it.activo }.toString(),
                 color = Color(0xFF27AE60)
             )
-            UserStatCard(
-                modifier = Modifier.weight(1f),
-                titulo = "Admins",
-                valor = usuarios.count { it.rol == "Administrador" }.toString(),
-                color = Color(0xFFE67E22)
-            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // User List
+        //Lista de usuarios
         Text(
             text = "Usuarios Registrados",
             fontSize = 18.sp,
